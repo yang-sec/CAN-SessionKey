@@ -7,6 +7,6 @@ The code consists of two independent parts: 1) A benchmark evaluation procedure 
 ## Part 1: Benchmark Evaluation
 
 ## Part 2: Prototype Implementation and Evaluation
-This part contains the implemention of both SKDC and SSKT protocols. For both, we take 
+This part contains the implemention details of SKDC and SSKT protocols. For both protocols, we take Arduino Due A000062 borad as key server(KS) and Arduino Uno R3 broad as ECU. Seeed Studio CAN BUS Shields are used to provide CAN communication. Details of Seeed Studio Shield can be found in [Google](http://www.google.com/)
 
 
