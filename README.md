@@ -7,6 +7,6 @@ The code consists of two independent parts: 1) A benchmark evaluation procedure 
 ## Part 1: Benchmark Evaluation
 
 ## Part 2: Prototype Implementation and Evaluation
-This part contains the implemention details of SKDC and SSKT protocols. For both protocols, we take [Arduino Due A000062 borad](https://store.arduino.cc/usa/due) as key server(KS) and [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board as ECU. For CAN communication, both board and library in [Seeed Studio CAN BUS Shields](https://github.com/Seeed-Studio/CAN_BUS_Shield) are used. 
+This part contains the implemention details of SKDC and SSKT protocols. For both protocols, we take [Arduino Due A000062 borad](https://store.arduino.cc/usa/due) as key server(KS) and [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board as ECU. The library in [Seeed Studio CAN BUS Shields](https://github.com/Seeed-Studio/CAN_BUS_Shield) is used to provide CAN communication. 
 
 
