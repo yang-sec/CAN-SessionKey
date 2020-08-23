@@ -7,3 +7,6 @@ The code consists of two independent parts: 1) A benchmark evaluation procedure 
 ## Part 1: Benchmark Evaluation
 
 ## Part 2: Prototype Implementation and Evaluation
+This part contains the implemention of both SKDC and SSKT protocols. For both, we take 
+
+
