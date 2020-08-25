@@ -5,8 +5,9 @@ This repo includes the hardware specs, code, and documentation for evaluating SK
 The code consists of two independent parts: 1) A benchmark evaluation procedure for each of the protocol steps and an extrapolation analysis program. 2) A prototype implementation of SKDC and SSKT, along with hardware specification and evaluation procedures.
 
 ## Part 1: Benchmark Evaluation
+Performance of singal cryptographic operations such as encryption, decryption and polynomial operations are evaluated in this part. The performance is conducted on [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board.
 
 ## Part 2: Prototype Implementation and Evaluation
-This part contains the implemention details of SKDC and SSKT protocols. For both protocols, we take [Arduino Due A000062 borad](https://store.arduino.cc/usa/due) as key server(KS) and [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board as ECU. The library in [Seeed Studio CAN BUS Shields](https://github.com/Seeed-Studio/CAN_BUS_Shield) is used to provide CAN communication. 
+This part contains the implemention details of SKDC and SSKT protocols. For both protocols, we take [Arduino Due A000062 borad](https://store.arduino.cc/usa/due) as key server(KS) and [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board as ECU nodes. The library in [Seeed Studio CAN BUS Shields](https://github.com/Seeed-Studio/CAN_BUS_Shield) is used to provide CAN communication. 
 
 
