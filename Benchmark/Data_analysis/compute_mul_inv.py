@@ -1,5 +1,5 @@
 import numpy as np
-m = 257
+m = 251
 invs = '0'
 
 def str_append(s, n):
