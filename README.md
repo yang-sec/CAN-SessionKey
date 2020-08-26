@@ -9,4 +9,4 @@ Performance of singal cryptographic operations such as encryption, decryption an
 ## Part 2: Prototype Implementation and Evaluation
 This part contains the implemention details of SKDC and SSKT protocols. For both protocols, we take [Arduino Due A000062 borad](https://store.arduino.cc/usa/due) as key server(KS) and [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) as ECU nodes. Still, reader needs Arduino IDE to upload the code on to board. The library in [Seeed Studio CAN BUS Shields](https://github.com/Seeed-Studio/CAN_BUS_Shield) is used to provide CAN communication. The reader need to add it to to Arduino IDE library hub before reproducing protocol evaluation. Each protocol contains two C++ folders, one is for key server and the other one is for ECU node. 
 
-
+For the hardware connection, readers can see the [Seeed Studio CAN BUS Shields Tutorial](https://wiki.seeedstudio.com/CAN-BUS_Shield_V2.0/). The only difference between tutorial and our harware platform is that the tutorial contains only one master node and one slave node while ours contain one master node (Key Server) and several slave nodes (ECU).
