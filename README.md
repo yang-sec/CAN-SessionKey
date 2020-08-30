@@ -28,11 +28,24 @@ Performance of single cryptographic operations in the protocols such as encrypti
 Benchmark/ExtrapolationAnalyses folder contains two python programs for extrapolating (i.e., with the benchmark results) the total communication and computation costs of the protocols. 
 
 ## Part 2: Prototype Implementation and Evaluation
-This part contains the implemention details of SKDC and SSKT protocols. For both protocols, we take [Arduino Due A000062 borad](https://store.arduino.cc/usa/due) as key server(KS) and [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) as ECU nodes. Still, readers need Arduino IDE to upload the code on to board. The library in [Seeed Studio CAN BUS Shields](https://github.com/Seeed-Studio/CAN_BUS_Shield) is used to provide CAN communication. Readers need to add it to to Arduino IDE library hub before reproducing protocol evaluation. Each protocol folder contains two C++ files, one is for key server and the other one is for ECU node. 
+
+### Setup ###
+This part contains the implemention details of SKDC and SSKT protocols. For both protocols, we take [Arduino Due A000062 borad](https://store.arduino.cc/usa/due) as key server(KS) and [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) as ECU nodes. Still, readers need Arduino IDE to upload the code on to board. The CAN-Bus Shield library we previous mentioned is used to provide CAN communication with [Seeed Studio CAN BUS Shields](https://github.com/Seeed-Studio/CAN_BUS_Shield). Each protocol folder contains two C++ files, one is for key server and the other one is for ECU node. 
 
 <img src="Connection.png"
      alt="Connection"
      width="600"
      style="float: left; margin-right: 10px" />
 
-For the hardware connection, readers can take the [Seeed Studio CAN BUS Shields Tutorial](https://wiki.seeedstudio.com/CAN-BUS_Shield_V2.0/) as basic guidance. The only difference between the tutorial hardware connection and our harware platform is that the tutorial connection contains only one master node and one slave node while ours contain one master node (Key Server) and several slave nodes (ECUs). So we just use an additional breadborad to interconnect the CAN_H and CAN_L jump wires from master and slave nodes. Also, two 120 omega terminal resistors are inserted between CAN_H jump wires and CAN_L jump wires in order to comply CAN bus standard. See connection.png for more information.
+For the basic CAN bus connection, readers can take the [Seeed Studio CAN BUS Shields Tutorial](https://wiki.seeedstudio.com/CAN-BUS_Shield_V2.0/) as basic guidance. The figure above shows our hardware simulation experiment setup. The only difference between the tutorial hardware connection and our setup is that the tutorial connection contains only one master node and one slave node while ours contain one master node (Key Server) and several slave nodes (ECUs). So we just use an additional breadborad to interconnect the CAN_H and CAN_L jump wires from master and slave nodes. Also, two 120-Ohm terminal resistors are inserted between CAN_H jump wires and CAN_L jump wires in order to comply CAN bus standard.
+
+### Evaluation ###
+To run the SKDC protype
+- Upload /SKDC/key_server_skdc/key_server_skdc.ino to the Arduino Due board.
+- Upload /SKDC/nodes_skdc/nodes_skdc.ino to each Arduino Uno boards.
+- Check the result at the Serial Monitor corresponding to the Arduino Due board.
+
+To run the SSKT protype
+- Upload /SSKT/key_server_sskt/key_server_sskt.ino to the Arduino Due board.
+- Upload /SSKT/nodes_sskt/nodes_sskt.ino to each Arduino Uno boards.
+- Check the result at the Serial Monitor corresponding to the Arduino Due board.
