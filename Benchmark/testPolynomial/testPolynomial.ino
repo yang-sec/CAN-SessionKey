@@ -1,7 +1,8 @@
 // Benchmarking the runtime of recovering N-degree polynomial secret (i.e. f(0)) at one normal ECU 
 // Used in the SSKT protocol 
 // ACSAC-2020 paper "Session Key Distribution Made Practical for CAN and CAN-FD Message Authentication"
-// **Please refer to Eq. 1 of the paper for the math**
+// **Please refer to Eq. 1 of the paper for the math behind the polynomial secret recovery
+//
 // Yang Xiao <xiaoy@vt.edu>
 
 #include <Crypto.h>
