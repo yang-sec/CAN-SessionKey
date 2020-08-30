@@ -4,8 +4,28 @@ This repo includes the hardware specs, code, and documentation for evaluating SK
 ## Introduction
 The code consists of two independent parts: 1) Benchmark evaluation programs for indivudual crypto operations and extrapolation analyses. 2) A prototype implementation of SKDC and SSKT, along with hardware specification and evaluation program.
 
+## Preliminaries ##
+
+### How to Run Program with Arduino ###
+Make sure Arduino IDE is installed on your computer. To run program xxx.ino in your Arduino board and see the result, please do:
+- Connect Arduino board to your computer via USB interface.
+- Open xxx.ino in Arduino IDE. Under "Tools" select the correct board name and port number.
+- Click "Verify" and then "Upload". Then program will be running in the Arduino board.
+- Open "Serial Monitor", set the output format as "Both NL & CR", and the baud rate specified in the code (9600 in our case).
+- Then the result will print automatically. If you close and reopen the Serial Monitor, the result will reappear.
+
+### Install Libraries ###
+We will use three libraries in the evaluations. The installation is as simple as placing the specified folder under your Arduino libraries (in my case, the path is C:\Users\yangs\Documents\Arduino\libraries), and restart the IDE.
+- Install the [Arduino Cryptography Library](https://github.com/rweather/arduinolibs/tree/master/libraries/Crypto).
+- Install the provided "GF256" folder under your Arduino libraries. The provided GF256.h contains the pre-computed lookup tables in GF256.
+- Install the [CAN-Bus Shield](https://github.com/Seeed-Studio/CAN_BUS_Shield) library, which is provided by the CAN bus shield vendor Seeed.
+
 ## Part 1: Benchmark Evaluation
-Performance of single cryptographic operations in the protocols such as encryption, decryption and Lagrange polynomial recovery are evaluated in this part. The performance evaluation is conducted on [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board. Readers also need the compliable Arduino IDE in order to upload the code on to board. Within these cryptographic operations, AES encrytion, AES decryption and SHA256 calculation can be directly evaluated thourgh default crypto library in Arduino IDE. See testAES folder and testSHA256 folder. While polynomial evaluation needs lookup table for help. See Lookup_table folder and test_Polynomial folder. Readers need to add the two head files in Lookup_table folder in his or her own project to achieve Lagrange polynomial recovery evaluation. The remaining Data_analysis folder contains the communication and computation analysis of the protocols. 
+Performance of single cryptographic operations in the protocols such as encryption, decryption, hash, and Lagrange polynomial recovery are evaluated in this part. The performance evaluation is conducted on one [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board. 
+- AES encrytion, AES decryption and SHA256 calculation can be evaluated with the examples provided by Arduino Cryptography Library. Simply run Benchmark/testAES/testAES.ino and Benchmark/testSHA256/testSHA256.ino to see the result. 
+- For evaluating polynomial recovery, run Benchmark/testPolynomial/testPolynomial.ino to see the result.
+
+Benchmark/ExtrapolationAnalyses folder contains two python programs for extrapolating (i.e., with the benchmark results) the total communication and computation costs of the protocols. 
 
 ## Part 2: Prototype Implementation and Evaluation
 This part contains the implemention details of SKDC and SSKT protocols. For both protocols, we take [Arduino Due A000062 borad](https://store.arduino.cc/usa/due) as key server(KS) and [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) as ECU nodes. Still, readers need Arduino IDE to upload the code on to board. The library in [Seeed Studio CAN BUS Shields](https://github.com/Seeed-Studio/CAN_BUS_Shield) is used to provide CAN communication. Readers need to add it to to Arduino IDE library hub before reproducing protocol evaluation. Each protocol folder contains two C++ files, one is for key server and the other one is for ECU node. 
