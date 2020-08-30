@@ -1,13 +1,19 @@
+# For ACSAC'20 Paper: "Session Key Distribution Made Practical for CAN and CAN-FD Message Authentication"
+# Plotting the extrapolated total computation workload (Figure. 7)
+#
+# Yang Xiao <xiaoy@vt.edu>
+
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-N = [2,6,10]
-M = [5,10,15,20,25,30,35,40,45,50]
+N = [2,6,10]  # Number of normal ECUs
+M = [5,10,15,20,25,30,35,40,45,50]  # Number of message IDs (we assume all ECUs subscribe to all message IDs)
 
-AES = 0.067 # AES128, ms/byte
-HASH = 0.061 # SHA3 and SHA3-HMAC, ms/byte
-F = [0.047,0.250,0.615] # ms/byte
+# Runtime results (ms/byte) obtained from the three Arduino benchmark experiments (also shown in Table 2)
+AES = 0.0675  # AES128 decryption
+HASH = 0.0611 # SHA3 and SHA3-HMAC
+F = [0.0094,0.0206,0.0318] # Recovering polynomial secret of degree 2, 6, 10.
 
 
 SKDC_Total    = np.zeros((len(N),len(M)))
@@ -26,11 +32,11 @@ for i in range(len(N)):
 
 		# 128 bits in RD_MSG AES-decryption
 		# (128+11+64+128) bits in RD_MSG MAC
-		# (2+18+64+128*n+128) bits in KD_MSG MAC
+		# (2+18+64+128) bits in KD_MSG MAC
 		# (128+11+64+256) bits in CO_MSG MAC
 		# 128*m bits in digest computation
 		# 16*m bytes in f(0) computation
-		SSKT_Total[i,j] = AES*16 + HASH*42 + HASH*(2+18+64+128*n+128)/8 * m + HASH*58 + HASH*16*m + F[i]*16*m
+		SSKT_Total[i,j] = AES*16 + HASH*42 + HASH*(2+18+64+128)/8 * m + HASH*58 + HASH*16*m + F[i]*16*m
 
 
 plt.plot(SKDC_Total[0],    color='red', linestyle='-')
@@ -42,13 +48,8 @@ plt.legend([
 	'SKDC',
 	'SSKT, $N=2$', 'SSKT, $N=6$', 'SSKT, $N=10$'], fontsize='12')
 
-# print('SKDC_Total_FD[1]:', SKDC_Total_FD[1])
-# print('SSKT_Total_FD[1]:', SSKT_Total_FD[1])
-
-
 plt.xlabel('$M$ (Number of Message IDs)', fontsize='14')
 plt.ylabel('Computation Workload (ms)', fontsize='14')
-# plt.ylim([0,10000])
 plt.xticks(range(len(M)),['5','10','15','20','25','30','35','40','45','50'], fontsize='12')
 plt.grid()
 plt.show()
