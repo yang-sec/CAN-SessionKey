@@ -98,7 +98,7 @@ uint8_t check_message_digest(unsigned long ID, uint8_t MAC[8], int i){
 
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
 	// init can bus : baudrate = 500k
     while (CAN_OK != CAN.begin(CAN_500KBPS)) {
         Serial.println("CAN BUS Shield init fail");

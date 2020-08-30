@@ -144,7 +144,7 @@ uint8_t check_MAC(unsigned long can_ID, uint8_t epoch[8], uint8_t points[N-1][16
   }
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(9600);
 
     while (CAN_OK != CAN.begin(CAN_500KBPS)) {            // init can bus : baudrate = 500k
         Serial.println("CAN BUS Shield init fail");
