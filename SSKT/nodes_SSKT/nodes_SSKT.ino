@@ -7,11 +7,10 @@
 #include <SHA256.h>
 #include <GF256.h>
 
-//M is the number of session key
-//N is the number of ECU nodes
-//M N can be changed
-const int M=1;
-const int N=2;
+/* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
+// Keep it the the same with the KS setup
+const int M=1; // Number of MSG IDs. M=1 is used in the paper
+const int N=2; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
 //Set CS pin
 const int SPI_CS_PIN = 9;

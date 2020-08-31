@@ -16,11 +16,9 @@ SHA256 hash;
 const int SPI_CS_PIN = 9;
 MCP_CAN CAN(SPI_CS_PIN);
 
-//M is the number of Session key
-//N is the number of ECU nodes
-//M N can be changed
-const int M=1;
-const int N=2;
+/* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
+const int M=1; // Number of MSG IDs. M=1 is used in the paper
+const int N=2; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
 double start1, start2, endt1, endt2, elapsed1, elapsed2;
 
@@ -163,7 +161,7 @@ void setup(){
         delay(100);
    }
    Serial.println("CAN BUS Shield init ok!");
-   Serial.println("sasasasasasa");
+   Serial.println("-----------");
    start1 = micros();
    epoch[7]=1;
    uint8_t Poly_para [M][N][16];

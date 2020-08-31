@@ -17,10 +17,9 @@ SHA256 hash;
 //Initialize time variable for elapse time calculation
 double start1, start2, endt1, endt2, elapsed1, elapsed2;
 
-//M is the number of session key and N is the number of ECU nodes,
-//M N can be changed to simulate different network scale
-const int M=1;
-const int N=2;
+/* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
+const int M=1; // Number of MSG IDs. M=1 is used in the paper
+const int N=2; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
 uint8_t epoch[8]={0,0,0,0,0,0,0,0};
 

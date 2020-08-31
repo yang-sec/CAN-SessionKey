@@ -6,8 +6,8 @@
 #include <AES.h>
 #include <SHA256.h>
 
-const int M=1;
-const int N=2;
+// Keep it the the same with the KS setup
+const int M=1; // Number of MSG IDs. M=1 is used in the paper
 
 //set CS pin
 const int SPI_CS_PIN = 9;
