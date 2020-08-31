@@ -47,7 +47,7 @@ For both protocols, we use [Arduino Due A000062 borad](https://store.arduino.cc/
      width="600"
      style="float: left; margin-right: 10px" />
 
-For the basic CAN bus connection, readers can take the [Seeed Studio CAN BUS Shields Tutorial](https://wiki.seeedstudio.com/CAN-BUS_Shield_V2.0/) as basic guidance. The figure above shows our hardware simulation experiment setup. The only difference between the tutorial hardware connection and our setup is that the tutorial connection contains only one master node and one slave node while ours contain one master node (KS) and several slave nodes (ECUs). So we just use an additional breadborad to interconnect the CAN_H and CAN_L jump wires from master and slave nodes. Also, two 120-Ohm terminal resistors are inserted between CAN_H jump wires and CAN_L jump wires in order to comply with CAN bus standard.
+For the basic CAN bus connection, readers can take the [Seeed Studio CAN BUS Shields Tutorial](https://wiki.seeedstudio.com/CAN-BUS_Shield_V2.0/) as basic guidance. The figure above shows our hardware simulation experiment setup. The only difference between the tutorial hardware connection and our setup is that the tutorial connection contains only one master node and one slave node while ours contain one master (KS) and several slave nodes (ECUs). So we just use an additional breadborad to interconnect the CAN_H and CAN_L jump wires from master and slave nodes. Also, two 120-Ohm terminal resistors are inserted between CAN_H jump wires and CAN_L jump wires in order to comply with CAN bus standard. Note that each slave node can simulate up to 3 ECUs, therefore we can test <em>N</em> from {2,3,4,5,6}.
 
 ### Evaluation ###
 Experiment on the SKDC protype
@@ -60,5 +60,5 @@ Experiment on the SSKT protype
 - Upload /SSKT/nodes_sskt/<strong>nodes_sskt.ino</strong> to each Arduino Uno boards.
 - Check the result at the Serial Monitor corresponding to the Arduino Due board.
 
-For both SKDC and SSKT experiments, try different <em>N</em> (from {2,3,4,5,6}, the number of simulated ormal ECUs) to reproduce the result in the paper (Table 3 in the paper). Keep the same <em>M, N</em> in the <strong>key_server</strong> and <strong>nodes</strong> programs.
+For both SKDC and SSKT experiments, try different <em>N</em> (from {2,3,4,5,6}, the number of simulated normal ECUs) to reproduce the result in the paper (Table 3 in the paper). Keep the same <em>M, N</em> in the <strong>key_server</strong> and <strong>nodes</strong> programs.
 
