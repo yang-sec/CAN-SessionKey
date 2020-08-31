@@ -53,12 +53,14 @@ For the basic CAN bus connection, readers can take the [Seeed Studio CAN BUS Shi
 Experiment on the SKDC protype
 - Upload /SKDC/key_server_skdc/<strong>key_server_skdc.ino</strong> to the Arduino Due board.
 - Upload /SKDC/nodes_skdc/<strong>nodes_skdc.ino</strong> to each Arduino Uno boards.
-- Check the result at the Serial Monitor corresponding to the Arduino Due board.
+- Press "reset" button on the Arduino Due board to start running the protocol.
+- Check the result at the Serial Monitor.
 
 Experiment on the SSKT protype
 - Upload /SSKT/key_server_sskt/<strong>key_server_sskt.ino</strong> to the Arduino Due board.
 - Upload /SSKT/nodes_sskt/<strong>nodes_sskt.ino</strong> to each Arduino Uno boards.
-- Check the result at the Serial Monitor corresponding to the Arduino Due board.
+- Press "reset" button on the Arduino Due board to start running the protocol.
+- Check the result at the Serial Monitor.
 
 For both SKDC and SSKT experiments, try different <em>N</em> (from {2,3,4,5,6}, the number of simulated normal ECUs) to reproduce the result in the paper (Table 3 in the paper). Keep the same <em>M, N</em> in the <strong>key_server</strong> and <strong>nodes</strong> programs.
 
