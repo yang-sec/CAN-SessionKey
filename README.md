@@ -5,8 +5,8 @@ This repo includes the hardware specs, code, and documentation for evaluating SK
 
 ## Introduction
 The code consists of two independent parts: 
-1. Benchmark evaluation programs for indivudual crypto operations and extrapolation analyses. 
-2. A prototype implementation of SKDC and SSKT, along with hardware specification and evaluation program.
+1. Benchmark evaluation programs for indivudual crypto operations and extrapolation analyses (for Section 6.1, 6.2 of the paper).
+2. A prototype implementation of SKDC and SSKT, along with hardware specification and evaluation program (for Section 6.3 of the paper).
 
 ## Preliminaries ##
 
@@ -24,7 +24,7 @@ We will use the following three libraries in the evaluations:
 - The provided "GF256" under your Arduino libraries. The <strong>GF256.h</strong> file contains the pre-computed lookup tables for polynomial arithemetic in GF256.
 - [CAN-Bus Shield](https://github.com/Seeed-Studio/CAN_BUS_Shield) library by the CAN bus shield vendor Seeed Studio.
 
-The installation is as simple as placing the specified folder under your Arduino libraries (in my case, the path is C:\Users\yangs\Documents\Arduino\libraries), and restart the IDE.
+Library installation is as simple as placing the specified folder under your Arduino libraries (in my case, the path is C:\Users\yangs\Documents\Arduino\libraries). Then restart the IDE and include the needed .h files.
 
 ## Part 1: Benchmark Evaluation
 Performance of single cryptographic operations in the protocols including encryption, decryption, hash, and Lagrange polynomial recovery are evaluated in this part. The performance evaluation is conducted on one [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board. 
@@ -33,7 +33,7 @@ Performance of single cryptographic operations in the protocols including encryp
 
 The above results correspond to Table 1 in the paper. 
 
-Moreover, the Benchmark/ExtrapolationAnalyses folder contains two python programs for extrapolating the total communication and computation costs of the protocols, which correspond to Figure 7,8 in the paper.
+Moreover, the Benchmark/ExtrapolationAnalyses folder contains two python programs for extrapolating the total communication and computation costs of the protocols. Python packages <em>numpy</em> and <em>matplotlib</em> are needed. The results correspond to Figure 7 and 8 in the paper.
 
 ## Part 2: Prototype Implementation and Evaluation
 
@@ -62,5 +62,5 @@ Experiment on the SSKT protype
 - Press "reset" button on the Arduino Due board to start running the protocol.
 - Check the result at the Serial Monitor.
 
-For both SKDC and SSKT experiments, try different <em>N</em> (from {2,3,4,5,6}, the number of simulated normal ECUs) to reproduce the result in the paper (Table 3 in the paper). Keep the same <em>M, N</em> in the <strong>key_server</strong> and <strong>nodes</strong> programs.
+For both SKDC and SSKT experiments, try different <em>N</em> (from {2,3,4,5,6}, the number of simulated normal ECUs) to reproduce the result in the paper (Table 3). For any setup, keep the same <em>M, N</em> in the <strong>key_server</strong> and <strong>nodes</strong> programs.
 
