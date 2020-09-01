@@ -1,4 +1,6 @@
-<strong>For ACSAC'20 Artifact Evaluation reviewers: Please feel free to open a new issue for any question/concern. Thanks:)</strong>
+<strong>For ACSAC'20 artifact evaluation reviewers: 
+
+One Arduino UNO microcontroller board is needed to run Part 1. An extra Arduino UNO board and one Arduino Due board are needed to run Part 2. Please feel free to open a new issue for any question/concern. Thanks:)</strong>
 
 # CAN-SessionKey
 This repo includes the hardware specs, code, and documentation for evaluating SKDC and SSKT, two session key distribution protocols for CAN/CAN-FD bus. Background information and detailed protocol workflow can be found in our ACSAC'20 (Dec 7-11, 2020) paper <em>Session Key Distribution Made Practical for CAN and CAN-FD Message Authentication.</em>
@@ -27,7 +29,7 @@ We will use the following three libraries in the evaluations:
 Library installation is as simple as placing the specified folder under your Arduino libraries (in my case, the path is C:\Users\yangs\Documents\Arduino\libraries). Then restart the IDE and include the needed .h files.
 
 ## Part 1: Benchmark Evaluation
-Performance of single cryptographic operations in the protocols including encryption, decryption, hash, and Lagrange polynomial recovery are evaluated in this part. The performance evaluation is conducted on one [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board. 
+Performance of single cryptographic operations in the protocols including encryption, decryption, hash, and Lagrange polynomial recovery are evaluated in this part. <strong>The experiment is conducted on one [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board.</strong> 
 - AES encrytion, AES decryption and SHA256 calculation can be evaluated with the examples provided by Arduino Cryptography Library. Simply run Benchmark/testAES/<strong>testAES.ino</strong> and Benchmark/testSHA256/<strong>testSHA256.ino</strong> to see the result. 
 - For evaluating the polynomial recovery mechanism used in SSKT (Eq. (1) in the paper), run Benchmark/testPolynomial/<strong>testPolynomial.ino</strong> to see the result.
 
@@ -47,7 +49,7 @@ For both protocols, we use [Arduino Due A000062 borad](https://store.arduino.cc/
      width="600"
      style="float: left; margin-right: 10px" />
 
-For the basic CAN bus connection, readers can take the [Seeed Studio CAN BUS Shields Tutorial](https://wiki.seeedstudio.com/CAN-BUS_Shield_V2.0/) as basic guidance. The figure above shows our hardware simulation experiment setup. The only difference between the tutorial hardware connection and our setup is that the tutorial connection contains only one master node and one slave node while ours contain one master (KS) and several slave nodes (ECUs). So we just use an additional breadborad to interconnect the CAN_H and CAN_L jump wires from master and slave nodes. Also, two 120-Ohm terminal resistors are inserted between CAN_H jump wires and CAN_L jump wires in order to comply with CAN bus standard. Note that each slave node can simulate up to 3 ECUs, therefore we can test <em>N</em> from {2,3,4,5,6}.
+For the basic CAN bus connection, readers can take the [Seeed Studio CAN BUS Shields Tutorial](https://wiki.seeedstudio.com/CAN-BUS_Shield_V2.0/) as basic guidance. <strong>The figure above shows our hardware simulation experiment setup.</strong> The only difference between the tutorial hardware connection and our setup is that the tutorial connection contains only one master node and one slave node while ours contain one master (KS) and two slave nodes (ECUs). So we just use an additional breadborad to interconnect the CAN_H and CAN_L jump wires from master and slave nodes. Also, two 120-Ohm terminal resistors are inserted between CAN_H jump wires and CAN_L jump wires in order to comply with CAN bus standard. We configure that each slave node can simulate up to 3 ECUs, therefore we can test <em>N</em>={2,3,4,5,6}.
 
 ### Evaluation ###
 Experiment on the SKDC protype
