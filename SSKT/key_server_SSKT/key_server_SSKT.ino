@@ -124,26 +124,16 @@ void MAC_check(unsigned long ID, uint8_t new_MAC[8], uint8_t tmp_epoch[8]){
   Serial.println("ID:");
   Serial.println(ID);
   hash.update(&ID, 4);
-  Serial.println("tmp_epoch:");
-    for(int l=0;l<8;l++){
-      Serial.print(tmp_epoch[l]);
-      Serial.print("\t");
-      }
   hash.update(tmp_epoch, 8);
   for(int s=0; s<M; s++){
     hash.update(Session_key[s], 16);
-    Serial.println("tmp_epoch:");
-    for(int l=0;l<16;l++){
-      Serial.print(Session_key[s][l]);
-      Serial.print("\t");
-      }}
+    }
   hash.finalize(MAC,8);
   for(int i=0;i<8;i++){
     if(MAC[i]!=new_MAC[i]){
       flag=1;
       }
     }
-  Serial.println();
   if(flag==1){
     Serial.println("Fail");
     }
@@ -190,7 +180,7 @@ void loop() {
           Serial.print("\t");
       }
       Serial.println();
-      for(int i=0;i<1;i++){//N
+      for(int i=0;i<N;i++){
         uint8_t new_MAC[8];
         if(counter==2*i){
           array_assignment(new_epoch,buf,8);
