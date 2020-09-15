@@ -1,11 +1,17 @@
 # CAN-SessionKey
 This repo includes the hardware specs, code, and documentation for evaluating SKDC and SSKT, two session key distribution protocols for CAN/CAN-FD bus. Background information and detailed protocol workflow can be found in our ACSAC'20 (Dec 7-11, 2020) paper <em>Session Key Distribution Made Practical for CAN and CAN-FD Message Authentication.</em>
 
+## Introduction
+The code consists of two independent parts: 
+1. Benchmark evaluation programs for indivudual crypto operations and extrapolation analyses (for Section 6.1, 6.2 of the paper).
+2. A prototype implementation of SKDC and SSKT, along with hardware specification and evaluation program (for Section 6.3 of the paper).
+
 ## Dear ACSAC'20 Artifact Evaluation Reviewers:
 
-<strong>We have set up the Linux environment for your evaluation on Part 1. Part 2 is coming soon.</strong>
+<strong>Here are the steps to quickly generate the evaluation results with our Linux environment. The content in the remaining sections (starting from Preliminaries) can be used as a reference if you would like build your own hardware system.</strong>
+     
+First of all, remote login our Linux environment (username and password are provided in HotCRP).
 
-First remote login our Linux environment, then please follow the steps to reproduce the evaluation results.
 
 ### Part 1
 
@@ -36,13 +42,13 @@ y
 arduino --upload testSHA3_256/testSHA3_256.ino --port /dev/ttyACM1
 
 ```
-- Then enter the Serial Monitor for result and exit.
+- Then enter the Serial Monitor, check result, and exit.
 
 - Test the Lagrange polynomial recovery algorithm used in the SSKT protocol:
 ```bash
 arduino --upload testPolynomial/testPolynomial.ino --port /dev/ttyACM1
 ```
-- Then enter the Serial Monitor for result and exit.
+- Then enter the Serial Monitor, check result, and exit.
 
 ### Part 2 (Coming Soon)
 
@@ -50,10 +56,7 @@ arduino --upload testPolynomial/testPolynomial.ino --port /dev/ttyACM1
 
 
 
-## Introduction
-The code consists of two independent parts: 
-1. Benchmark evaluation programs for indivudual crypto operations and extrapolation analyses (for Section 6.1, 6.2 of the paper).
-2. A prototype implementation of SKDC and SSKT, along with hardware specification and evaluation program (for Section 6.3 of the paper).
+
 
 ## Preliminaries ##
 
