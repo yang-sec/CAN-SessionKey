@@ -53,7 +53,7 @@ arduino --upload testPolynomial/testPolynomial.ino --port /dev/ttyACM1
 ```
 - Then enter the Serial Monitor, check result, and exit.
 
-### Part 2 - SKDC
+### Part 2 - SKDC (coming soon)
 We assign port ttyACM2 to the Arduino Due (KS) and ports ttyACM0, ttyACM3 to the Arduino Unos (ECUs).
 
 - Move to the SKDC directory:
@@ -69,7 +69,7 @@ arduino --board arduino:avr:uno --upload nodes_skdc/nodes_skdc.ino --port /dev/t
 ```
 - Then check the Serial Monitor outputs at the different ports in the same way as Part 1.
 
-### Part 2 - SSKT
+### Part 2 - SSKT (coming soon)
 - Move to the SSKT directory:
 ```bash
 cd ~/GitHub/CAN-SessionKey/SSKT/
