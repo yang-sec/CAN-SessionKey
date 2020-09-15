@@ -1,6 +1,46 @@
-<strong>For ACSAC'20 artifact evaluation reviewers: 
+## Dear ACSAC'20 Artifact Evaluation Reviewers:
 
-One Arduino Uno microcontroller board is needed to run Part 1. An extra Arduino Uno board and one Arduino Due board are needed to run Part 2. Please feel free to open a new issue for any question/concern. Thanks:)</strong>
+<strong>We have set up the Linux environment for your evaluation on Part 1. Part 2 is coming soon.</strong>
+
+First remote login our Linux environment, then please follow the steps to reproduce the evaluation results.
+
+### Part 1
+
+We only need one Arduino Uno for benchmark tests. This board is connected via port ttyACM1.
+
+- Move to the Benchmark directory:
+```bash
+cd ~/GitHub/CAN-SessionKey/Benchmark/
+```
+
+- Test AES encryption and decryption:
+```bash
+arduino --upload testAES/testAES.ino --port /dev/ttyACM1
+```
+- Enter the Serial Monitor and check result:
+```bash
+screen /dev/ttyACM1 9600
+```
+- Exit the Serial Monitor and vacate the port. In the monitor screen, press the following sequentially:
+```bash
+^ctrl+a
+k
+y
+```
+
+- Test SHA3_256:
+```bash
+arduino --upload testSHA3_256/testSHA3_256.ino --port /dev/ttyACM1
+
+```
+- Then enter the Serial Monitor for result and exit.
+
+- Test the Lagrange polynomial recovery algorithm used in the SSKT protocol:
+```bash
+arduino --upload testPolynomial/testPolynomial.ino --port /dev/ttyACM1
+```
+- Then enter the Serial Monitor for result and exit.
+
 
 # CAN-SessionKey
 This repo includes the hardware specs, code, and documentation for evaluating SKDC and SSKT, two session key distribution protocols for CAN/CAN-FD bus. Background information and detailed protocol workflow can be found in our ACSAC'20 (Dec 7-11, 2020) paper <em>Session Key Distribution Made Practical for CAN and CAN-FD Message Authentication.</em>
