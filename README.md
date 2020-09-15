@@ -10,7 +10,10 @@ The code consists of two independent parts:
 
 <strong>Here are the steps to quickly generate the evaluation results with our Linux environment. The content in the remaining sections (starting from Preliminaries) can be used as a reference if you would like build your own hardware system.</strong>
      
-First of all, remote login our Linux environment (username and password are provided in HotCRP).
+First of all, remote login our Linux environment (username and password are provided in HotCRP). Use the following command to check connected Arduino boards and the port number:
+```bash
+~/bin/arduino-cli board list
+```
 
 
 ### Part 1
@@ -50,13 +53,35 @@ arduino --upload testPolynomial/testPolynomial.ino --port /dev/ttyACM1
 ```
 - Then enter the Serial Monitor, check result, and exit.
 
-### Part 2 (Coming Soon)
+### Part 2 - SKDC
+We assign port ttyACM2 to the Arduino Due (KS) and ports ttyACM0, ttyACM3 to the Arduino Unos (ECUs).
 
+- Move to the SKDC directory:
+```bash
+cd ~/GitHub/CAN-SessionKey/SKDC/
+```
 
+- Upload the protocol programs into the corresponding boards
+```bash
+arduino --board arduino:sam:arduino_due_x_dbg --upload key_server_skdc/key_server_skdc.ino --port /dev/ttyACM2
+arduino --board arduino:avr:uno --upload nodes_skdc/nodes_skdc.ino --port /dev/ttyACM0
+arduino --board arduino:avr:uno --upload nodes_skdc/nodes_skdc.ino --port /dev/ttyACM3
+```
+- Then check the Serial Monitor outputs at the different ports in the same way as Part 1.
 
+### Part 2 - SSKT
+- Move to the SSKT directory:
+```bash
+cd ~/GitHub/CAN-SessionKey/SSKT/
+```
 
-
-
+- Upload the protocol programs into the corresponding boards
+```bash
+arduino --board arduino:sam:arduino_due_x_dbg --upload key_server_sskt/key_server_sskt.ino --port /dev/ttyACM2
+arduino --board arduino:avr:uno --upload nodes_sskt/nodes_sskt.ino --port /dev/ttyACM0
+arduino --board arduino:avr:uno --upload nodes_sskt/nodes_sskt.ino --port /dev/ttyACM3
+```
+- Then check the Serial Monitor outputs at the different ports in the same way as Part 1.
 
 ## Preliminaries ##
 
