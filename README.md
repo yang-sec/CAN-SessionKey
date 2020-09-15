@@ -1,3 +1,6 @@
+# CAN-SessionKey
+This repo includes the hardware specs, code, and documentation for evaluating SKDC and SSKT, two session key distribution protocols for CAN/CAN-FD bus. Background information and detailed protocol workflow can be found in our ACSAC'20 (Dec 7-11, 2020) paper <em>Session Key Distribution Made Practical for CAN and CAN-FD Message Authentication.</em>
+
 ## Dear ACSAC'20 Artifact Evaluation Reviewers:
 
 <strong>We have set up the Linux environment for your evaluation on Part 1. Part 2 is coming soon.</strong>
@@ -41,9 +44,11 @@ arduino --upload testPolynomial/testPolynomial.ino --port /dev/ttyACM1
 ```
 - Then enter the Serial Monitor for result and exit.
 
+### Part 2 (Coming Soon)
 
-# CAN-SessionKey
-This repo includes the hardware specs, code, and documentation for evaluating SKDC and SSKT, two session key distribution protocols for CAN/CAN-FD bus. Background information and detailed protocol workflow can be found in our ACSAC'20 (Dec 7-11, 2020) paper <em>Session Key Distribution Made Practical for CAN and CAN-FD Message Authentication.</em>
+
+
+
 
 ## Introduction
 The code consists of two independent parts: 
