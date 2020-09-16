@@ -124,7 +124,7 @@ void setup()
     Serial.println(" ms.");
     
     // Main Run
-    Serial.println("Runtime of recovering secret key: \n");
+    Serial.println("Runtime of recovering secret key:");
     int fzero[K_LEN]; // The f(0) to recover for all bytes
     for(int N = 1;N <= N_MAX;N++)
     {   
