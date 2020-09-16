@@ -119,7 +119,7 @@ void setup()
         }
     }
     endt = micros();
-    Serial.print("Runtime of pre-computing Lagrange coefficients (only needed once): ");
+    Serial.println("Runtime of pre-computing Lagrange coefficients (only needed once): ");
     Serial.print((endt-start)/1000);
     Serial.print(" ms.");
     Serial.println();
