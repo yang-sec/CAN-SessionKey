@@ -119,11 +119,9 @@ void setup()
         }
     }
     endt = micros();
-    Serial.println("Runtime of pre-computing Lagrange coefficients (only needed once): ");
+    Serial.print("Runtime of pre-computing Lagrange coefficients (only needed once): ");
     Serial.print((endt-start)/1000);
-    Serial.print(" ms.");
-    Serial.println();
-
+    Serial.println(" ms.");
     
     // Main Run
     Serial.println("Runtime of recovering secret key: \n");
@@ -161,7 +159,7 @@ void setup()
         }
         
         endt = micros();
-        Serial.println("N=");
+        Serial.print("N=");
         Serial.print(N);
         Serial.print(". \t128-bit secret key recovered: 0x");
         for(int b = 0;b < K_LEN;b++)
@@ -174,7 +172,7 @@ void setup()
         Serial.print(elapsed/Repeat);
         Serial.print(" us. \tRuntime per byte:  ");
         Serial.print(elapsed/Repeat/K_LEN);
-        Serial.print(" us.");
+        Serial.println(" us.");
     }
 }
 
