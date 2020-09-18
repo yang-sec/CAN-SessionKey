@@ -22,7 +22,7 @@ We only need one Arduino Uno for benchmark tests. This board is connected via po
 
 - Move to the Benchmark directory:
 ```bash
-cd ~/GitHub/CAN-SessionKey/Benchmark/
+cd ~/CAN-SessionKey/Benchmark/
 ```
 
 - Test AES encryption and decryption:
@@ -53,35 +53,77 @@ arduino --upload testPolynomial/testPolynomial.ino --port /dev/ttyACM1
 ```
 - Then enter the Serial Monitor, check result, and exit.
 
-### Part 2 - SKDC (coming soon)
-We assign port ttyACM2 to the Arduino Due (KS) and ports ttyACM0, ttyACM3 to the Arduino Unos (ECUs).
+### Part 2 - SKDC
+We assign port ttyACM0 to the Arduino Due (KS), port ttyACM2 to the first Arduino Uno (node 1), and ttyACM3 to the second Arduino Uno (node 2).
+We managed to remotely test SKDC with pressing "reset" button with the following procedures (in exact sequence):
 
-- Move to the SKDC directory:
+Move to the SKDC directory:
 ```bash
-cd ~/GitHub/CAN-SessionKey/SKDC/
+cd ~/CAN-SessionKey/SKDC/
 ```
 
-- Upload the protocol programs into the corresponding boards
+Upload the node1 program onto the 1st Uno board (through ttyACM2):
 ```bash
-arduino --board arduino:sam:arduino_due_x_dbg --upload key_server_skdc/key_server_skdc.ino --port /dev/ttyACM2
-arduino --board arduino:avr:uno --upload nodes_skdc/nodes_skdc.ino --port /dev/ttyACM0
-arduino --board arduino:avr:uno --upload nodes_skdc/nodes_skdc.ino --port /dev/ttyACM3
+arduino --board arduino:avr:uno --upload nodes_skdc_1/nodes_skdc_1.ino --port /dev/ttyACM2
 ```
-- Then check the Serial Monitor outputs at the different ports in the same way as Part 1.
+Open Serial Monitor for this board:
+```bash
+screen /dev/ttyACM2 19200
+```
+Keep this Serial Monitor in place and open a new one:
+```bash
+^ctrl+a
+c
+```
+Upload the node1 program onto the 2nd Uno board (through ttyACM3):
+```bash
+arduino --board arduino:avr:uno --upload nodes_skdc_2/nodes_skdc_2.ino --port /dev/ttyACM3
+```
+Open Serial Monitor for this board:
+```bash
+screen /dev/ttyACM3 19200
+```
+Keep this Serial Monitor in place and open a new one:
+```bash
+^ctrl+a
+c
+```
+Upload the key_server program onto the Due board (through ttyACM0):
+```bash
+arduino --board arduino:sam:arduino_due_x_dbg --upload key_server_skdc/key_server_skdc.ino --port /dev/ttyACM0
+```
+Open Serial Monitor for this board:
+```bash
+screen /dev/ttyACM0 19200
+```
+Now you should see the session key generated at the beginning, as well as different runtime measures. Then you can switch to other Serial Monitors to check the other nodes have obtained the session key, by simply pressing the following to switch to next screen:
+```bash
+^ctrl+a
+n
+```
+When done, please press the following in a monitor screen to exit Serial Monitor:
+```bash
+^ctrl+a
+k
+y
+```
+And type the following to terminate ports and end experiment:
+```bash
+pkill screen
+```
 
-### Part 2 - SSKT (coming soon)
-- Move to the SSKT directory:
-```bash
-cd ~/GitHub/CAN-SessionKey/SSKT/
-```
+You can repeat the whole process with different N by changing the source codes (with vim for example). Please use only the following options: 
+| N in key_server  | 2 | 3 | 4 | 5 | 6 |
+| --- | --- |--- | --- | --- | --- | 
+| N in node_skdc_1 | 1 | 2 | 2 | 3 | 3 |
+| N in node_skdc_2 | 1 | 1 | 2 | 2 | 3 |
 
-- Upload the protocol programs into the corresponding boards
-```bash
-arduino --board arduino:sam:arduino_due_x_dbg --upload key_server_sskt/key_server_sskt.ino --port /dev/ttyACM2
-arduino --board arduino:avr:uno --upload nodes_sskt/nodes_sskt.ino --port /dev/ttyACM0
-arduino --board arduino:avr:uno --upload nodes_sskt/nodes_sskt.ino --port /dev/ttyACM3
-```
-- Then check the Serial Monitor outputs at the different ports in the same way as Part 1.
+Please note that the runtimes results will be different from Table 3 of our paper; here we introduced artificial delays for stability in this test. We will update Table 3 with new stats and detailed discussion in the final paper.
+
+
+
+### Part 2 - SSKT
+For this part, we have to manually press the Due board's reset button in order to trigger stable outputs at all boards. We will demontrate this with a YouTube video, s
 
 ## Preliminaries ##
 
