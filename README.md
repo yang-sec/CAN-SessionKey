@@ -114,10 +114,10 @@ pkill screen
 ```
 
 You can repeat the whole process with different N by changing the source codes (with vim for example). Please use only the following options: 
-| N in key_server  | 2 | 3 | 4 | 5 | 6 |
+| N in key_server.ino  | 2 | 3 | 4 | 5 | 6 |
 | --- | --- |--- | --- | --- | --- | 
-| N in node_skdc_1 | 1 | 2 | 2 | 3 | 3 |
-| N in node_skdc_2 | 1 | 1 | 2 | 2 | 3 |
+| N in node_skdc_1.ino | 1 | 2 | 2 | 3 | 3 |
+| N in node_skdc_2.ino | 1 | 1 | 2 | 2 | 3 |
 
 <strong>Please note that the runtimes results will be different from Table 3 of our paper; here we introduced artificial delays between protocol messages for more stability in this test. We will keep this modification and update Table 3 with detailed discussion in the final paper.</strong>
 
@@ -177,10 +177,11 @@ Experiment on the SKDC protype
 - Check the result at the Serial Monitors.
 Try different <em>N</em> (from {2,3,4,5,6}, the number of simulated normal ECUs). Please follow the N options used in following Table:
 
-| N in key_server  | 2 | 3 | 4 | 5 | 6 |
+| N in key_server.ino  | 2 | 3 | 4 | 5 | 6 |
 | --- | --- |--- | --- | --- | --- | 
-| N in node_skdc_1 | 1 | 2 | 2 | 3 | 3 |
-| N in node_skdc_2 | 1 | 1 | 2 | 2 | 3 |
+| N in node_skdc_1.ino | 1 | 2 | 2 | 3 | 3 |
+| N in node_skdc_2.ino | 1 | 1 | 2 | 2 | 3 |
 
 Experiment on the SSKT protype
 - Following the same procedure but with the SSKT files.
+- Current N=2 in key_server.ino can work perfectly.
