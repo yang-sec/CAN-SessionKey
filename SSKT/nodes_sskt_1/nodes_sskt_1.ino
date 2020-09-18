@@ -207,7 +207,7 @@ void send_message_back(uint8_t flag, uint8_t Session_key[M][16], uint8_t epoch[8
 //}
 
 void setup() {
-    Serial.begin(19200);
+    Serial.begin(115200);
 
     while (CAN_OK != CAN.begin(CAN_500KBPS)) {            // init can bus : baudrate = 500k
         Serial.println("CAN BUS Shield init fail");
