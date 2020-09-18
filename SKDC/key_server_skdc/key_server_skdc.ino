@@ -176,16 +176,16 @@ void setup() {
     Session_key_generation();
     endt1 = micros();
 
-    for(int m=0;m<M;m++)
-    {
-      Serial.println("Session key generated:");
-      for(int k=0;k<16;k++)
-      {
-        Serial.print(Session_key[m][k], HEX);
-        Serial.print("\t");
-      }
-      Serial.println();
-    }
+//    for(int m=0;m<M;m++)
+//    {
+//      Serial.println("Session key generated:");
+//      for(int k=0;k<16;k++)
+//      {
+//        Serial.print(Session_key[m][k], HEX);
+//        Serial.print("\t");
+//      }
+//      Serial.println();
+//    }
 
     start2 = micros();
     for(int m=0;m<M;m++)
@@ -319,16 +319,16 @@ void loop() {
             Serial.println(elapsed0 - ArtDELAY*1000*N);
             Serial.println();
 
-//            for(int m=0;m<M;m++)
-//            {
-//              Serial.println("Session key distributed:");
-//              for(int k=0;k<16;k++)
-//              {
-//                Serial.print(Session_key[m][k], HEX);
-//                Serial.print("\t");
-//              }
-//              Serial.println();
-//            }
+            for(int m=0;m<M;m++)
+            {
+              Serial.println("Session key distributed:");
+              for(int k=0;k<16;k++)
+              {
+                Serial.print(Session_key[m][k], HEX);
+                Serial.print("\t");
+              }
+              Serial.println();
+            }
           }
     
           for(int e=0;e<N;e++)
