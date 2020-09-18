@@ -307,15 +307,15 @@ void loop() {
             elapsed2= endt2 - start2;
             
             Serial.println();
-            Serial.print("Time for key generation (micro sec): ");
-            Serial.print(elapsed1);
+            Serial.print("Time for key generation (ms): ");
+            Serial.print(elapsed1/1000);
             Serial.println();
-            Serial.print("Time for key distribution (micro sec): ");
-            Serial.println(elapsed2);
+            Serial.print("Time for key distribution (ms): ");
+            Serial.println(elapsed2/1000);
             Serial.print("Sum (ms): ");
-            Serial.println((elapsed1+elapsed2));
+            Serial.println((elapsed1+elapsed2)/1000);
             Serial.print("Time for sending all KDMSGs minus artificial delays (micro sec): ");
-            Serial.println(elapsed0 - ArtDELAY*1000*N);
+            Serial.println(elapsed0 - ArtDELAY*N);
             Serial.println();
 
 //            for(int m=0;m<M;m++)

@@ -18,7 +18,7 @@ MCP_CAN CAN(SPI_CS_PIN);
 
 /* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
 const int M=1; // Number of MSG IDs. Please fix M=1.
-const int N=2; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
+const int N=6; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
 const int ArtDELAY = 50; // Artifitial delay  
 
@@ -387,15 +387,15 @@ void loop() {
         elapsed2= endt2 - start2;
         
         Serial.println();
-        Serial.print("Time for key generation (micro sec): ");
-        Serial.print(elapsed1);
+        Serial.print("Time for key generation (ms): ");
+        Serial.print(elapsed1/1000);
         Serial.println();
-        Serial.print("Time for key distribution (micro sec): ");
-        Serial.println(elapsed2);
+        Serial.print("Time for key distribution (ms): ");
+        Serial.println(elapsed2/1000);
         Serial.print("Sum (ms): ");
-        Serial.println((elapsed1+elapsed2));
-        Serial.print("Time for sending all KDMSGs minus artificial delays (micro sec): ");
-        Serial.println(elapsed0 - ArtDELAY*1000*M);
+        Serial.println((elapsed1+elapsed2)/1000);
+        Serial.print("Time for sending all KDMSGs (ms): ");
+        Serial.println(elapsed0/1000 - ArtDELAY*M);
         Serial.println();
   
         for(int e=0;e<N;e++)
