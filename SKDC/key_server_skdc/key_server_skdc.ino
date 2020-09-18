@@ -156,10 +156,12 @@ void setup() {
         Serial.println("CAN BUS Shield init fail");
         Serial.println(" Init CAN BUS Shield again");
         delay(100);
-    }
-    
+    }    
     Serial.println("CAN BUS Shield init ok!");
-    delay(2000);
+    for(int i=0;i<10;i++)
+    {
+      Serial.println();
+    }
     Serial.print("SKDC Key Server. #N = ");
     Serial.println(N);
 
@@ -319,16 +321,16 @@ void loop() {
             Serial.println(elapsed0 - ArtDELAY*1000*N);
             Serial.println();
 
-            for(int m=0;m<M;m++)
-            {
-              Serial.println("Session key distributed:");
-              for(int k=0;k<16;k++)
-              {
-                Serial.print(Session_key[m][k], HEX);
-                Serial.print("\t");
-              }
-              Serial.println();
-            }
+//            for(int m=0;m<M;m++)
+//            {
+//              Serial.println("Session key distributed:");
+//              for(int k=0;k<16;k++)
+//              {
+//                Serial.print(Session_key[m][k], HEX);
+//                Serial.print("\t");
+//              }
+//              Serial.println();
+//            }
           }
     
           for(int e=0;e<N;e++)
