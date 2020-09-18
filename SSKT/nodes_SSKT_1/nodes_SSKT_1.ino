@@ -47,13 +47,14 @@ uint8_t check_hmac(uint8_t new_hmac[8], unsigned long ID, uint8_t tmp_epoch[8], 
   hash.update(tmp_epoch, 8);
   hash.update(R, 16);
   hash.finalizeHMAC(key, 16, tmp_hmac, 8);
-  Serial.println("hmac: ");
-  for(int i=0;i<8;i++){
-    Serial.print(tmp_hmac[i]);
-    Serial.print("\t");
+//  Serial.println("hmac: ");
+  for(int i=0;i<8;i++)
+  {
+//    Serial.print(tmp_hmac[i]);
+//    Serial.print("\t");
     if(tmp_hmac[i]!=new_hmac[i])
     {
-      Serial.println("Does not match");
+      Serial.println("Secret MAC does not match");
       return 1;
       break;
     }
@@ -93,68 +94,117 @@ void pre_compute(){
   }
 }
 
-void recover_session_key(uint8_t Pre_computed_list[N][16], uint8_t Pre_shared_secret_y[16], uint8_t R[16], uint8_t points[N-1][16], uint8_t Session_key[16]){
-  for(int i=0;i<16;i++){
+uint8_t recover_session_key(
+  uint8_t Pre_computed_list[N][16], 
+  uint8_t Pre_shared_secret_y[16], 
+  uint8_t R[16], 
+  uint8_t points[N-1][16], 
+  unsigned long can_ID, 
+  uint8_t epoch[8],
+  uint8_t MAC[8],
+  uint8_t Session_key[16])
+{
+  uint8_t New_MAC[8];
+  
+  for(int i=0;i<16;i++)
+  {
+    // Interpolation with pre-computed Lagrange coeffs
     Session_key[i]=0;
-    for(int j=0;j<N;j++){
-      if(j!=(N-1)){
-      Session_key[i]=Session_key[i]^GF256_Exp[(GF256_Log[points[j][i]]+GF256_Log[Pre_computed_list[j][i]])%0xff];
+    for(int j=0;j<N;j++)
+    {
+      if(j!=(N-1))
+      {
+        Session_key[i]=Session_key[i]^GF256_Exp[(GF256_Log[points[j][i]]+GF256_Log[Pre_computed_list[j][i]])%0xff];
       }
-      else{
-      Session_key[i]=Session_key[i]^GF256_Exp[(GF256_Log[Pre_shared_secret_y[i]^R[i]]+GF256_Log[Pre_computed_list[j][i]])%0xff];
+      else
+      {
+        Session_key[i]=Session_key[i]^GF256_Exp[(GF256_Log[Pre_shared_secret_y[i]^R[i]]+GF256_Log[Pre_computed_list[j][i]])%0xff];
       }
-      }
+    }
+  }
+
+  // Check MAC. MAC of KDMSG: hash(session key|mid|epoch)
+  hash.reset();
+  hash.update(Session_key, 16);
+  hash.update(&can_ID, sizeof(can_ID));
+  hash.update(epoch, 8);
+  hash.finalize(New_MAC,8);
+  for(int b=0;b<8;b++)
+  {
+    if(New_MAC[b]!=MAC[b])
+    {
+//      Serial.println("KDMSG MAC does not match");
+      return 1;
+    }
+  }
+  return 0;
+}
+
+void send_message_back(uint8_t flag, uint8_t Session_key[M][16], uint8_t epoch[8], int e)
+{
+  uint8_t MAC[8];
+  unsigned long re_ID = 0x010000 + EID[e];
+  hash.reset();
+  hash.update(&re_ID, 4);
+
+//  Serial.print("send_message_back epoch: ");
+//  for(int l=0;l<8;l++)
+//  {
+//    Serial.print(epoch[l]);
+//  }
+  hash.update(epoch, 8);
+//  Serial.println();
+  
+  if(flag==0)
+  {
+    for(int s=0; s<M; s++)
+    {
+//      Serial.println("Session key:");
+//      for(int l=0;l<16;l++)
+//      {
+//          Serial.print(Session_key[s][l],HEX);
+//          Serial.print("\t");
+//      }
+//      Serial.println();
+      hash.update(Session_key[s], 16);
+    }
+    hash.finalize(MAC,8);
+    CAN.sendMsgBuf(re_ID, 1, 8, epoch);
+//    delay(200);
+    CAN.sendMsgBuf(re_ID, 1, 8, MAC);
+  }
+  else
+  {
+    hash.finalize(MAC,8);
+    CAN.sendMsgBuf(re_ID, 1, 8, epoch);
+    //delay(200);
+    CAN.sendMsgBuf(re_ID, 1, 8, MAC);
   }
 }
 
-void send_message_back(uint8_t flag, uint8_t Session_key[M][16], uint8_t epoch[8]){
-  uint8_t MAC[8];
-  unsigned long re_ID=0x080000;
-  hash.reset();
-  hash.update(&re_ID, 4);
-  for(int l=0;l<8;l++){
-  Serial.println(epoch[l]);}
-  hash.update(epoch, 8);
-  if(flag==0){
-    for(int s=0; s<M; s++){
-      Serial.println("Session key:");
-      for(int l=0;l<16;l++){
-          Serial.print(Session_key[s][l],HEX);
-          Serial.print("\t");
-        }
-      Serial.println();
-    hash.update(Session_key[s], 16);
-    }
-    hash.finalize(MAC,8);
-    CAN.sendMsgBuf(re_ID, 1, 8, epoch);
-    //delay(200);
-    CAN.sendMsgBuf(re_ID, 1, 8, MAC);
-    }
-  else{
-    hash.finalize(MAC,8);
-    CAN.sendMsgBuf(re_ID, 1, 8, epoch);
-    //delay(200);
-    CAN.sendMsgBuf(re_ID, 1, 8, MAC);
-    }
-  }
 
-
-uint8_t check_MAC(unsigned long can_ID, uint8_t epoch[8], uint8_t points[N-1][16], uint8_t MAC[8]){
-  uint8_t New_MAC[8];
-  hash.reset();
-  hash.update(&can_ID, sizeof(can_ID));
-  hash.update(epoch, 8);
-  for(int i=0;i<N-1; i++){
-    hash.update(points[i], 16);
-    }
-  hash.finalize(New_MAC,8);
-  for(int i=0;i<8;i++){
-    if(New_MAC[i]!=MAC[i]){
-      return 1;
-      }
-    }
-  return 0;
-  }
+//uint8_t check_MAC(unsigned long can_ID, uint8_t epoch[8], uint8_t points[N-1][16], uint8_t MAC[8])
+//{
+//  uint8_t New_MAC[8];
+//  hash.reset();
+//  hash.update(&can_ID, sizeof(can_ID));
+//  hash.update(epoch, 8);
+//  
+//  for(int i=0;i<N-1; i++)
+//  {
+//    hash.update(points[i], 16);
+//  }
+//  hash.finalize(New_MAC,8);
+//  
+//  for(int i=0;i<8;i++)
+//  {
+//    if(New_MAC[i]!=MAC[i])
+//    {
+//      return 1;
+//    }
+//  }
+//  return 0;
+//}
 
 void setup() {
     Serial.begin(19200);
@@ -173,15 +223,16 @@ void setup() {
     CAN.init_Filt(2, 1, EID[1]+1);
     CAN.init_Filt(3, 1, EID[2]+1);
     Serial.println("CAN BUS Shield init ok!");
+    Serial.println();
     
     epoch[7]=1;
     pre_compute();
-    Serial.println("epoch");
-    for(int i=0;i<8;i++){
-      Serial.print(epoch[i]);
-      Serial.print("\t");
-      }
-    Serial.println();
+//    Serial.println("epoch");
+//    for(int i=0;i<8;i++){
+//      Serial.print(epoch[i]);
+//      Serial.print("\t");
+//      }
+//    Serial.println();
     counter=0;  
 }
 
@@ -194,14 +245,14 @@ void loop() {
         CAN.readMsgBuf(&len, buf);    // read data
 
         canId = CAN.getCanId();
-        Serial.print("------- Get data from ID: 0x");
-        Serial.println(canId, HEX);
-        for (int i = 0; i < len; i++) // print the data
-        { 
-            Serial.print(buf[i],HEX);
-            Serial.print("\t");
-        }
-        Serial.println();
+//        Serial.print("------- Get data from ID: 0x");
+//        Serial.println(canId, HEX);
+//        for (int i = 0; i < len; i++) // print the data
+//        { 
+//            Serial.print(buf[i],HEX);
+//            Serial.print("\t");
+//        }
+//        Serial.println();
         
         for(int m=0;m<M;m++)
         {
@@ -227,12 +278,12 @@ void loop() {
             uint8_t new_hmac[8];
             array_assignment(new_hmac,buf,8);
             flag=check_hmac(new_hmac,canId,epoch,R[m],Pre_shared_key_x);
-            Serial.println("R:");
-            for(int b=0;b<16;b++){
-              Serial.print(R[m][b]);
-              Serial.print("\t");
-            }
-            Serial.println();
+//            Serial.println("R:");
+//            for(int b=0;b<16;b++){
+//              Serial.print(R[m][b]);
+//              Serial.print("\t");
+//            }
+//            Serial.println();
           }
         }
 //        Serial.println("--------------------------------------------------------");
@@ -267,15 +318,16 @@ void loop() {
           if(counter==4*M+2*N-1+2*N*j)
           {
             array_assignment(MAC,buf,8);
-            flag=check_MAC(canId, epoch, points, MAC);
-            recover_session_key(Pre_computed_list[j], Pre_shared_key_y, R[j], points, Session_key[j]);
-            Serial.println();
-            for(int s=0;s<16;s++)
-            {
-              Serial.print(Session_key[j][s],HEX);
-              Serial.print("\t");
-            }
-            Serial.println();
+            
+//            flag=check_MAC(canId, epoch, points, MAC);
+            flag=recover_session_key(Pre_computed_list[j], Pre_shared_key_y, R[j], points, canId, epoch, MAC, Session_key[j]);
+//            Serial.println("------- Get session key: ");
+//            for(int s=0;s<16;s++)
+//            {
+//              Serial.print(Session_key[j][s],HEX);
+//              Serial.print("\t");
+//            }
+//            Serial.println();
           }
         }
         
@@ -285,8 +337,23 @@ void loop() {
       counter++;
       if(counter==4*M+2*N+2*N*(M-1))
       {
-        send_message_back(flag,Session_key,epoch);
+        for(int repeat=0;repeat<7;repeat++)
+        {
+          send_message_back(flag,Session_key,epoch,0);
+          delay(3);
+        }
         counter=0;
+
+        for(int m=0;m<M;m++)
+        {
+          Serial.print("Session key obtained:\t");
+          for(int b=0;b<16;b++)
+          {
+            Serial.print(Session_key[m][b], HEX);
+            Serial.print("\t");
+          }
+          Serial.println();
+        }
       }
 //      Serial.println(flag);
     }

@@ -14,14 +14,13 @@ MCP_CAN CAN(SPI_CS_PIN);
 AESTiny128 AES128;
 SHA256 hash;
 
-//Initialize time variable for elapse time calculation
-double start0, start1, start2, end0, endt1, endt2, elapsed0, elapsed1, elapsed2;
+
 
 /* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
 const int M=1; // Number of MSG IDs. Please fix M = 1.
-const int N=5; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
+const int N=2; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
-const int ArtDELAY = 40; // Artifitial delay
+const int ArtDELAY = 50; // Artifitial delay
 
 uint8_t epoch[8]={0,0,0,0,0,0,0,0};
 uint8_t Pre_shared_key[6][16]={ // We simulate up to 6 ECUs with 2 Uno boards
@@ -39,6 +38,8 @@ unsigned long EID[6]={0x000800, 0x001000, 0x001800, 0x002000, 0x002800, 0x003000
 int counter[N];
 int counterTT;
 
+//Initialize time variable for elapse time calculation
+double start0, start1, start2, end0, endt1, endt2, elapsed0, elapsed1, elapsed2;
 uint8_t Session_key[M][16];
 
 // Tmp variables
@@ -187,14 +188,13 @@ void setup() {
     start2 = micros();
     for(int m=0;m<M;m++)
     {
+      start0 = micros();
       for(int e=0;e<N;e++)
-      {
-          start0 = micros();
+      {    
           send_kdmsg(e,m);
-          end0 = micros();
-          elapsed0 += end0 - start0;
       }
     }
+    elapsed0 += micros() - start2;
       
 //    counter=0;
     
@@ -304,15 +304,17 @@ void loop() {
             Serial.println("Confirmation Success");
             elapsed1= endt1 - start1;
             elapsed2= endt2 - start2;
-            Serial.print("Time for key generation (ms): ");
-            Serial.print(elapsed1/1000);
+            
             Serial.println();
-            Serial.print("Time for key distribution (ms): ");
-            Serial.println(elapsed2/1000);
+            Serial.print("Time for key generation (micro sec): ");
+            Serial.print(elapsed1);
+            Serial.println();
+            Serial.print("Time for key distribution (micro sec): ");
+            Serial.println(elapsed2);
             Serial.print("Sum (ms): ");
-            Serial.println((elapsed1+elapsed2)/1000);
-            Serial.print("Time for sending all N KDMSGs minus artificial delays (ms): ");
-            Serial.println(elapsed0/1000 - ArtDELAY*N);
+            Serial.println((elapsed1+elapsed2));
+            Serial.print("Time for sending all KDMSGs minus artificial delays (micro sec): ");
+            Serial.println(elapsed0 - ArtDELAY*1000*N);
             Serial.println();
           }
     
