@@ -160,7 +160,7 @@ void setup() {
     Serial.println("CAN BUS Shield init ok!");
     for(int i=0;i<10;i++)
     {
-      Serial.println();
+      Serial.println("------------------------------------------");
     }
     Serial.print("SKDC Key Server. #N = ");
     Serial.println(N);
