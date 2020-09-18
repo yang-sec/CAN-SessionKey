@@ -23,7 +23,7 @@ uint8_t Pre_shared_key_x[16]=
 uint8_t Pre_shared_key_y[16]=
   {0x33,0x69,0x92,0x70,0x1c,0x3a,0xad,0x5,0x75,0x5b,0x9b,0x64,0x3f,0x9b,0x72,0xbd};
   
-unsigned long EID[3]={0x000800, 0x001800, 0x002800};
+unsigned long EID[3]={0x001000, 0x002000, 0x003000};
 unsigned long MID=0x000101;
 
 uint8_t flag;
@@ -234,7 +234,7 @@ void loop() {
 					flag=recover_session_key(Pre_computed_list[0], Pre_shared_key_y, R[0], points, canId, epoch, MAC, Session_key[0]);
 				}
 				break;
-			case EID[0]+1:
+			case 0x001001:
 				if(ECU1_counter==0){
 					uint8_t tmp_epoch[8];
 					array_assignment(tmp_epoch,buf,8);
@@ -258,7 +258,7 @@ void loop() {
 					flag=check_hmac(new_hmac,canId,epoch,R[0],Pre_shared_key_x);
 				}
 				break;
-			case EID[1]+1:
+			case 0x002001:
 				if(ECU2_counter==0){
 					uint8_t tmp_epoch[8];
 					array_assignment(tmp_epoch,buf,8);
@@ -282,7 +282,7 @@ void loop() {
 					flag=check_hmac(new_hmac,canId,epoch,R[1],Pre_shared_key_x);
 				}
 				break;
-			case EID[2]+1:
+			case 0x003001:
 				if(ECU3_counter==0){
 					uint8_t tmp_epoch[8];
 					array_assignment(tmp_epoch,buf,8);

@@ -234,7 +234,7 @@ void loop() {
 					flag=recover_session_key(Pre_computed_list[0], Pre_shared_key_y, R[0], points, canId, epoch, MAC, Session_key[0]);
 				}
 				break;
-			case EID[0]+1:
+			case 0x000801:
 				if(ECU1_counter==0){
 					uint8_t tmp_epoch[8];
 					array_assignment(tmp_epoch,buf,8);
@@ -258,7 +258,7 @@ void loop() {
 					flag=check_hmac(new_hmac,canId,epoch,R[0],Pre_shared_key_x);
 				}
 				break;
-			case EID[1]+1:
+			case 0x001801:
 				if(ECU2_counter==0){
 					uint8_t tmp_epoch[8];
 					array_assignment(tmp_epoch,buf,8);
@@ -282,7 +282,7 @@ void loop() {
 					flag=check_hmac(new_hmac,canId,epoch,R[1],Pre_shared_key_x);
 				}
 				break;
-			case EID[2]+1:
+			case 0x002801:
 				if(ECU3_counter==0){
 					uint8_t tmp_epoch[8];
 					array_assignment(tmp_epoch,buf,8);
