@@ -150,7 +150,7 @@ uint8_t check_message_digest(unsigned long MID, uint8_t MAC[8], int e){
 
 
 void setup() {
-    Serial.begin(115200);
+    Serial.begin(19200);
 	// init can bus : baudrate = 500k
     while (CAN_OK != CAN.begin(CAN_500KBPS)) {
         Serial.println("CAN BUS Shield init fail");
@@ -176,16 +176,16 @@ void setup() {
     Session_key_generation();
     endt1 = micros();
 
-//    for(int m=0;m<M;m++)
-//    {
-//      Serial.println("Session key generated:");
-//      for(int k=0;k<16;k++)
-//      {
-//        Serial.print(Session_key[m][k], HEX);
-//        Serial.print("\t");
-//      }
-//      Serial.println();
-//    }
+    for(int m=0;m<M;m++)
+    {
+      Serial.println("Session key generated:");
+      for(int k=0;k<16;k++)
+      {
+        Serial.print(Session_key[m][k], HEX);
+        Serial.print("\t");
+      }
+      Serial.println();
+    }
 
     start2 = micros();
     for(int m=0;m<M;m++)
