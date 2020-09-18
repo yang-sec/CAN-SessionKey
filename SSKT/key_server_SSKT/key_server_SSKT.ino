@@ -20,7 +20,7 @@ MCP_CAN CAN(SPI_CS_PIN);
 const int M=1; // Number of MSG IDs. Please fix M=1.
 const int N=2; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
-const int ArtDELAY = 50; // Artifitial delay
+const int ArtDELAY = 50; // Artifitial delay  
 
 
 uint8_t Pre_shared_key_x[N][16]={
