@@ -7,7 +7,7 @@
 #include <SHA256.h>
 
 const int M=1; // Number of MSG IDs. Please fix M = 1.
-const int N=1; // Number of normal ECUs with the max of 3 at each Uno board
+const int N=3; // Number of normal ECUs with the max of 3 at each Uno board
 
 //set CS pin
 const int SPI_CS_PIN = 9;
