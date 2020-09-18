@@ -10,7 +10,8 @@
 /* PLEASE CHANGE TO SEE DIFFERENT SETUPS */  
 // Keep it the the same with the KS setup
 const int M=1; // Number of MSG IDs. Please fix M=1.
-const int N=6; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
+const int N=2; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
+const int LocalN=1; // Number of normals simulated by the node
 
 //Set CS pin
 const int SPI_CS_PIN = 9;
@@ -19,18 +20,20 @@ SHA256 hash;
 
 int counter=0;
 uint8_t Pre_shared_key_x[16]=
-  {0x63,0x4a,0xcc,0xa0,0xcc,0xd6,0xe,0xe0,0xad,0x70,0xd2,0xdb,0x9e,0xd2,0xa3,0x28};
+  {0x2c,0xeb,0x89,0x11,0x5e,0x74,0xe6,0xd8,0xf6,0x8d,0xe2,0x33,0xad,0xb7,0x7b,0x4f};
 uint8_t Pre_shared_key_y[16]=
-  {0x33,0x69,0x92,0x70,0x1c,0x3a,0xad,0x5,0x75,0x5b,0x9b,0x64,0x3f,0x9b,0x72,0xbd};
+  {0xce,0xda,0x31,0x94,0x8e,0x39,0xdd,0x10,0x4a,0xe5,0xe4,0xfb,0xcd,0x2e,0x64,0x27};
   
 unsigned long EID[3]={0x001000, 0x002000, 0x003000};
 unsigned long MID=0x000101;
 
+uint8_t ListTT[5]={0xFC,0xF1,0xCD,0x07,0x13};
+uint8_t List[N-1];
+
 uint8_t flag;
 uint8_t epoch[8]={0,0,0,0,0,0,0,0};
-uint8_t R[3][16];
-uint8_t Session_key[3][16];
-uint8_t List[N-1]={0xFC,0xF1,0xCD,0x07,0x13};
+uint8_t R[LocalN][16];
+uint8_t Session_key[LocalN][16];
 uint8_t Pre_computed_list[M][N][16];
 
 uint8_t ECU1_counter=0;
@@ -136,6 +139,7 @@ uint8_t recover_session_key(
   {
     if(New_MAC[b]!=MAC[b])
     {
+      Serial.println("KDMSG MAC not check");
       return 1;
     }
   }
@@ -182,14 +186,19 @@ void setup() {
     }
 	//Initilize Masks and Filters
 	//Different ECU nodes need different Masks and Filters initilization to receive different message
-    CAN.init_Mask(0, 1, 0x1fffff00);
-    CAN.init_Mask(1, 1, 0x1fffff00);
+    CAN.init_Mask(0, 1, 0x1fffffff);
+    CAN.init_Mask(1, 1, 0x1fffffff);
     CAN.init_Filt(0, 1, MID); // The MID for KDMSG
     CAN.init_Filt(1, 1, EID[0]+1); // For PRMSG
     CAN.init_Filt(2, 1, EID[1]+1);
     CAN.init_Filt(3, 1, EID[2]+1);
     Serial.println("CAN BUS Shield init ok!");
     Serial.println();
+
+    for(int e=0;e<N-1;e++)
+    {
+      List[e] = ListTT[e];
+    }
     
     epoch[7]=1;
     pre_compute();
@@ -205,6 +214,15 @@ void loop() {
     {
         CAN.readMsgBuf(&len, buf);    // read data
         canId = CAN.getCanId();
+
+        Serial.print("------- Get data from ID: 0x");
+        Serial.println(canId, HEX);
+//        for (int i = 0; i < len; i++) // print the data
+//        { 
+//            Serial.print(buf[i],HEX);
+//            Serial.print("\t");
+//        }
+        Serial.println();
 		
 		switch(canId){
 			case 0x000101:
@@ -217,22 +235,25 @@ void loop() {
 					{
 						flag=1;
 					}
-					points_counter++;	
 				}
 				for(int k=0;k<N-1;k++){
 					if(points_counter==2*k+1){
 						array_assignment(points[k],buf,8);
-						points_counter++;
 					}
 					else if(points_counter==2*k+2){
 						array_assignment(&points[k][8],buf,8);
-						points_counter++;
 					}
 				}
 				if(points_counter==2*(N-1)+1){
 					array_assignment(MAC,buf,8);
 					flag=recover_session_key(Pre_computed_list[0], Pre_shared_key_y, R[0], points, canId, epoch, MAC, Session_key[0]);
 				}
+
+       if(points_counter < 2*N)
+        {
+          points_counter++;
+        }
+        
 				break;
 			case 0x001001:
 				if(ECU1_counter==0){
@@ -308,19 +329,22 @@ void loop() {
 				break;
 		}
       counter++;
-      if(counter==4*3+2*(N-1)+1+1-1)
+      Serial.print("counter = ");
+      Serial.println(counter);
+      
+      if(counter==4*LocalN+2*(N-1)+1+1)
       {
         for(int repeat=0;repeat<7;repeat++)
         {	
-			for(int i=0;i<3;i++){
+			for(int i=0;i<LocalN;i++){
 			send_message_back(flag,Session_key[i],epoch,i);
 			delay(3);
 			}
         }
 
-        for(int e=0;e<3;e++)
+        for(int e=0;e<LocalN;e++)
         {
-          Serial.print("Session key obtained:\t");
+          Serial.println("Session key obtained:\t");
           for(int b=0;b<16;b++)
           {
             Serial.print(Session_key[e][b], HEX);
@@ -328,6 +352,12 @@ void loop() {
           }
           Serial.println();
         }
+
+        points_counter = 0;
+        ECU1_counter = 0;
+        ECU2_counter = 0;
+        ECU3_counter = 0;
+        counter = 0;
       }
     }
 }

@@ -18,15 +18,23 @@ MCP_CAN CAN(SPI_CS_PIN);
 
 /* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
 const int M=1; // Number of MSG IDs. Please fix M=1.
-const int N=6; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
+const int N=2; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
-const int ArtDELAY = 50; // Artifitial delay  
+const int ArtDELAY = 50, ArtDELAY1 = 0; // Artifitial delay  
 
 
-uint8_t Pre_shared_key_x[N][16]={
+uint8_t Pre_shared_key_x[6][16]={
+  {0x63,0x4a,0xcc,0xa0,0xcc,0xd6,0xe,0xe0,0xad,0x70,0xd2,0xdb,0x9e,0xd2,0xa3,0x28},
+  {0x2c,0xeb,0x89,0x11,0x5e,0x74,0xe6,0xd8,0xf6,0x8d,0xe2,0x33,0xad,0xb7,0x7b,0x4f},
+  {0x63,0x4a,0xcc,0xa0,0xcc,0xd6,0xe,0xe0,0xad,0x70,0xd2,0xdb,0x9e,0xd2,0xa3,0x28},
+  {0x2c,0xeb,0x89,0x11,0x5e,0x74,0xe6,0xd8,0xf6,0x8d,0xe2,0x33,0xad,0xb7,0x7b,0x4f},
   {0x63,0x4a,0xcc,0xa0,0xcc,0xd6,0xe,0xe0,0xad,0x70,0xd2,0xdb,0x9e,0xd2,0xa3,0x28},
   {0x2c,0xeb,0x89,0x11,0x5e,0x74,0xe6,0xd8,0xf6,0x8d,0xe2,0x33,0xad,0xb7,0x7b,0x4f}};
-uint8_t Pre_shared_key_y[N][16]={
+uint8_t Pre_shared_key_y[6][16]={
+  {0x33,0x69,0x92,0x70,0x1c,0x3a,0xad,0x5,0x75,0x5b,0x9b,0x64,0x3f,0x9b,0x72,0xbd},
+  {0xce,0xda,0x31,0x94,0x8e,0x39,0xdd,0x10,0x4a,0xe5,0xe4,0xfb,0xcd,0x2e,0x64,0x27},
+  {0x33,0x69,0x92,0x70,0x1c,0x3a,0xad,0x5,0x75,0x5b,0x9b,0x64,0x3f,0x9b,0x72,0xbd},
+  {0xce,0xda,0x31,0x94,0x8e,0x39,0xdd,0x10,0x4a,0xe5,0xe4,0xfb,0xcd,0x2e,0x64,0x27},
   {0x33,0x69,0x92,0x70,0x1c,0x3a,0xad,0x5,0x75,0x5b,0x9b,0x64,0x3f,0x9b,0x72,0xbd},
   {0xce,0xda,0x31,0x94,0x8e,0x39,0xdd,0x10,0x4a,0xe5,0xe4,0xfb,0xcd,0x2e,0x64,0x27}};
 uint8_t Session_key[M][16];
@@ -40,7 +48,8 @@ int counterTT;
 double start0, start1, start2, end0, endt1, endt2, elapsed0, elapsed1, elapsed2;
 
 //List of x coordinate of broadcast points
-uint8_t List[N-1]={0xFC};
+uint8_t ListTT[5]={0xFC,0xF1,0xCD,0x07,0x13};
+uint8_t List[N-1];
 
 uint8_t epoch[8]={0,0,0,0,0,0,0,0};
 //int counter=0;
@@ -74,11 +83,11 @@ void Random_challenge(uint8_t Poly_para[M][N][16], uint8_t Pre_shared_key_x[N][1
     {
       unsigned long ID = EID[n] + m + 1;
       
-//      Serial.print("------- Send PRMSG with ID: ");
-//      Serial.print(ID,HEX);
-//      Serial.print(" to node ");
-//      Serial.print(n);
-//      Serial.println(" -------");
+      Serial.print("------- Send PRMSG with ID: ");
+      Serial.print(ID,HEX);
+      Serial.print(" to node ");
+      Serial.print(n);
+      Serial.println(" -------");
       
       for(int k=0;k<16;k++)
       {
@@ -97,43 +106,43 @@ void Random_challenge(uint8_t Poly_para[M][N][16], uint8_t Pre_shared_key_x[N][1
       hash.finalizeHMAC(Pre_shared_key_x[n], 16, hmac, 8);
       
       CAN.sendMsgBuf(ID, 1, 8, epoch);
-//      Serial.print("epoch:\t");
-//      for (int i = 0; i < 8; i++) 
-//      {
-//        Serial.print(epoch[i],HEX);
-//        Serial.print("\t");
-//      }
-//      Serial.println();
-//      delay(200);
+      Serial.print("epoch:\t");
+      for (int i = 0; i < 8; i++) 
+      {
+        Serial.print(epoch[i],HEX);
+        Serial.print("\t");
+      }
+      Serial.println();
+      delay(ArtDELAY1);
       
       CAN.sendMsgBuf(ID, 1, 8, Rtmp);
-//      Serial.print("Rtmp1:\t");
-//      for (int i = 0; i < 8; i++) 
-//      {
-//        Serial.print(Rtmp[i],HEX);
-//        Serial.print("\t");
-//      }
-//      Serial.println();
-//      delay(200);
+      Serial.print("Rtmp1:\t");
+      for (int i = 0; i < 8; i++) 
+      {
+        Serial.print(Rtmp[i],HEX);
+        Serial.print("\t");
+      }
+      Serial.println();
+      delay(ArtDELAY1);
       
       CAN.sendMsgBuf(ID, 1, 8, &Rtmp[8]);
-//      Serial.print("Rtmp2:\t");
-//      for (int i = 0; i < 8; i++) 
-//      {
-//        Serial.print(Rtmp[i+8],HEX);
-//        Serial.print("\t");
-//      }
-//      Serial.println();
-//      delay(200);
+      Serial.print("Rtmp2:\t");
+      for (int i = 0; i < 8; i++) 
+      {
+        Serial.print(Rtmp[i+8],HEX);
+        Serial.print("\t");
+      }
+      Serial.println();
+      delay(ArtDELAY1);
       
       CAN.sendMsgBuf(ID, 1, 8, hmac);
-//      Serial.print("hmac:\t");
-//      for (int i = 0; i < 8; i++) 
-//      {
-//        Serial.print(hmac[i],HEX);
-//        Serial.print("\t");
-//      }
-//      Serial.println();
+      Serial.print("hmac:\t");
+      for (int i = 0; i < 8; i++) 
+      {
+        Serial.print(hmac[i],HEX);
+        Serial.print("\t");
+      }
+      Serial.println();
       delay(ArtDELAY);
      }
    }
@@ -148,19 +157,19 @@ void points(uint8_t Poly_para[M][N][16], uint8_t List[N-1], uint8_t epoch[8]){
 //    ID=ID+1;
     ID = MID + m;
 
-//    Serial.print("------- Broadcast KDMSG with ID: ");
-//    Serial.print(ID,HEX);
-//    Serial.println(" -------");
+    Serial.print("------- Broadcast KDMSG with ID: ");
+    Serial.print(ID,HEX);
+    Serial.println(" -------");
       
     CAN.sendMsgBuf(ID, 1, 8, epoch);
-//    Serial.print("epoch:\t");
-//    for (int i = 0; i < 8; i++) 
-//    {
-//      Serial.print(epoch[i],HEX);
-//      Serial.print("\t");
-//    }
-//    Serial.println();
-//    delay(200);
+    Serial.print("epoch:\t");
+    for (int i = 0; i < 8; i++) 
+    {
+      Serial.print(epoch[i],HEX);
+      Serial.print("\t");
+    }
+    Serial.println();
+    delay(200);
 
     
      
@@ -178,24 +187,24 @@ void points(uint8_t Poly_para[M][N][16], uint8_t List[N-1], uint8_t epoch[8]){
       }
 //      hash.update(tmp_points, 16);
       CAN.sendMsgBuf(ID, 1, 8, tmp_points);
-//      Serial.print("pts1:\t");
-//      for (int i = 0; i < 8; i++) 
-//      {
-//        Serial.print(tmp_points[i],HEX);
-//        Serial.print("\t");
-//      }
-//      Serial.println();
-//      delay(200);
+      Serial.print("pts1:\t");
+      for (int i = 0; i < 8; i++) 
+      {
+        Serial.print(tmp_points[i],HEX);
+        Serial.print("\t");
+      }
+      Serial.println();
+      delay(ArtDELAY1);
       
       CAN.sendMsgBuf(ID, 1, 8, &tmp_points[8]);
-//      Serial.print("pts2:\t");
-//      for (int i = 0; i < 8; i++) 
-//      {
-//        Serial.print(tmp_points[i+8],HEX);
-//        Serial.print("\t");
-//      }
-//      Serial.println();
-//      delay(500);      
+      Serial.print("pts2:\t");
+      for (int i = 0; i < 8; i++) 
+      {
+        Serial.print(tmp_points[i+8],HEX);
+        Serial.print("\t");
+      }
+      Serial.println();
+      delay(ArtDELAY1);      
     }
 
     // MAC of KDMSG: hash(session key|mid|epoch)
@@ -206,13 +215,13 @@ void points(uint8_t Poly_para[M][N][16], uint8_t List[N-1], uint8_t epoch[8]){
     hash.finalize(hmac, 8);
     
     CAN.sendMsgBuf(ID, 1, 8, hmac);
-//    Serial.print("hmac:\t");
-//    for (int i = 0; i < 8; i++) 
-//    {
-//      Serial.print(hmac[i],HEX);
-//      Serial.print("\t");
-//    }
-//    Serial.println();
+    Serial.print("hmac:\t");
+    for (int i = 0; i < 8; i++) 
+    {
+      Serial.print(hmac[i],HEX);
+      Serial.print("\t");
+    }
+    Serial.println();
     delay(ArtDELAY);
   } 
 }
@@ -257,11 +266,18 @@ void setup()
   Serial.println(N);
 
   finished = false;
+  
+  for(int e=0;e<N-1;e++)
+  {
+    List[e] = ListTT[e];
+  }
+  
   for(int e=0;e<N;e++)
   {
     counter[e] = 0;
   }
   counterTT = 0;
+  
   epoch[7]=1;
   elapsed0 = 0;
   uint8_t Poly_para[M][N][16];

@@ -18,7 +18,7 @@ SHA256 hash;
 
 /* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
 const int M=1; // Number of MSG IDs. Please fix M = 1.
-const int N=6; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
+const int N=5; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
 const int ArtDELAY = 50; // Artifitial delay
 
@@ -315,7 +315,7 @@ void loop() {
             Serial.print("Sum (ms): ");
             Serial.println((elapsed1+elapsed2)/1000);
             Serial.print("Time for sending all KDMSGs minus artificial delays (micro sec): ");
-            Serial.println(elapsed0 - ArtDELAY*N);
+            Serial.println(elapsed0/1000 - ArtDELAY*N);
             Serial.println();
 
 //            for(int m=0;m<M;m++)
