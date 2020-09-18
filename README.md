@@ -119,12 +119,12 @@ You can repeat the whole process with different N by changing the source codes (
 | N in node_skdc_1 | 1 | 2 | 2 | 3 | 3 |
 | N in node_skdc_2 | 1 | 1 | 2 | 2 | 3 |
 
-Please note that the runtimes results will be different from Table 3 of our paper; here we introduced artificial delays for stability in this test. We will update Table 3 with new stats and detailed discussion in the final paper.
+<strong>Please note that the runtimes results will be different from Table 3 of our paper; here we introduced artificial delays between protocol messages for more stability in this test. We will keep this modification and update Table 3 with detailed discussion in the final paper.</strong>
 
 
 
 ### Part 2 - SSKT
-For this part, we have to manually press the Due board's reset button in order to trigger stable outputs at all boards. We will demontrate this with a YouTube video, s
+For this part, we have to manually press the Due board's reset button in order to trigger stable outputs at all boards. We will demontrate this with a YouTube video soon.
 
 ## Preliminaries ##
 
