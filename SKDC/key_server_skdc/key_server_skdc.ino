@@ -158,10 +158,7 @@ void setup() {
         delay(100);
     }    
     Serial.println("CAN BUS Shield init ok!");
-    for(int i=0;i<10;i++)
-    {
-      Serial.println("------------------------------------------");
-    }
+    
     Serial.print("SKDC Key Server. #N = ");
     Serial.println(N);
 
@@ -331,6 +328,10 @@ void loop() {
 //              }
 //              Serial.println();
 //            }
+              for(int i=0;i<10;i++)
+              {
+                Serial.println("------------------------------------------");
+              }
           }
     
           for(int e=0;e<N;e++)
