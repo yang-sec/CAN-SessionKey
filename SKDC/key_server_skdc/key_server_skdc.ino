@@ -157,6 +157,7 @@ void setup() {
         Serial.println(" Init CAN BUS Shield again");
         delay(100);
     }
+    delay(200);
     Serial.println("CAN BUS Shield init ok!");
     Serial.print("SKDC Key Server. #N = ");
     Serial.println(N);
