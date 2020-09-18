@@ -142,6 +142,8 @@ void setup() {
     CAN.init_Filt(1, 1, EID[1]+1); // KDMSG ID for ECU 1
     CAN.init_Filt(2, 1, EID[2]+1); // KDMSG ID for ECU 2
     Serial.println("CAN BUS Shield init ok!");
+    Serial.print("SKDC Key Node 1. #Local N = ");
+    Serial.println(N);
 
     for(int e=0;e<N;e++)
     {
