@@ -318,16 +318,7 @@ void loop() {
           if(counter==4*M+2*N-1+2*N*j)
           {
             array_assignment(MAC,buf,8);
-            
-//            flag=check_MAC(canId, epoch, points, MAC);
             flag=recover_session_key(Pre_computed_list[j], Pre_shared_key_y, R[j], points, canId, epoch, MAC, Session_key[j]);
-//            Serial.println("------- Get session key: ");
-//            for(int s=0;s<16;s++)
-//            {
-//              Serial.print(Session_key[j][s],HEX);
-//              Serial.print("\t");
-//            }
-//            Serial.println();
           }
         }
         
