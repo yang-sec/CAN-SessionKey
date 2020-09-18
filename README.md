@@ -55,7 +55,7 @@ arduino --upload testPolynomial/testPolynomial.ino --port /dev/ttyACM1
 
 ### Part 2 - SKDC
 We assign port ttyACM0 to the Arduino Due (KS), port ttyACM2 to the first Arduino Uno (node 1), and ttyACM3 to the second Arduino Uno (node 2).
-We managed to remotely test SKDC with pressing "reset" button with the following procedures (in exact sequence):
+We managed to remotely test SKDC without pressing "reset" button with the following procedures (in exact sequence):
 
 Move to the SKDC directory:
 ```bash
@@ -75,7 +75,7 @@ Keep this Serial Monitor in place and open a new one:
 ^ctrl+a
 c
 ```
-Upload the node1 program onto the 2nd Uno board (through ttyACM3):
+Upload the node2 program onto the 2nd Uno board (through ttyACM3):
 ```bash
 arduino --board arduino:avr:uno --upload nodes_skdc_2/nodes_skdc_2.ino --port /dev/ttyACM3
 ```
