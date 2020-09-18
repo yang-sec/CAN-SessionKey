@@ -70,7 +70,7 @@ Open Serial Monitor for this board:
 ```bash
 screen /dev/ttyACM2 115200
 ```
-Keep this Serial Monitor in place and open a new one:
+Keep this Serial Monitor in place and open a new screen:
 ```bash
 ^ctrl+a
 c
@@ -83,7 +83,7 @@ Open Serial Monitor for this board:
 ```bash
 screen /dev/ttyACM3 115200
 ```
-Keep this Serial Monitor in place and open a new one:
+Keep this Serial Monitor in place and open a new screen:
 ```bash
 ^ctrl+a
 c
@@ -96,7 +96,8 @@ Open Serial Monitor for this board:
 ```bash
 screen /dev/ttyACM0 115200
 ```
-Now you should see the session key generated at the beginning, as well as different runtime measures. Then you can switch to other Serial Monitors to check the other nodes have obtained the session key, by simply pressing the following to switch to next screen:
+Now the session key generated at the beginning (this output may be unstable due to the serial communication issues), as well as different runtime measures. 
+Then you can switch to other screens to check the other nodes have obtained the same session key, by simply pressing the following to switch to next screen:
 ```bash
 ^ctrl+a
 n
@@ -113,17 +114,17 @@ pkill screen
 ```
 
 You can repeat the whole process with different N by changing the source codes (with vim for example). Please use only the following options: 
-| N in key_server  | 2 | 3 | 4 | 5 | 6 |
+| N in key_server.ino  | 2 | 3 | 4 | 5 | 6 |
 | --- | --- |--- | --- | --- | --- | 
-| N in node_skdc_1 | 1 | 2 | 2 | 3 | 3 |
-| N in node_skdc_2 | 1 | 1 | 2 | 2 | 3 |
+| N in node_skdc_1.ino | 1 | 2 | 2 | 3 | 3 |
+| N in node_skdc_2.ino | 1 | 1 | 2 | 2 | 3 |
 
-Please note that the runtimes results will be different from Table 3 of our paper; here we introduced artificial delays for stability in this test. We will update Table 3 with new stats and detailed discussion in the final paper.
+<strong>Please note that the runtimes results will be different from Table 3 of our paper; here we introduced artificial delays between protocol messages for more stability in this test. We will keep this modification and update Table 3 with detailed discussion in the final paper.</strong>
 
 
 
 ### Part 2 - SSKT
-For this part, we have to manually press the Due board's reset button in order to trigger stable outputs at all boards. We will demontrate this with a YouTube video, s
+For this part, we have to manually press the Due board's reset button in order to trigger stable outputs at all boards. We will demontrate this with a YouTube video soon.
 
 ## Preliminaries ##
 
@@ -168,16 +169,19 @@ For the basic CAN bus connection, readers can take the [Seeed Studio CAN BUS Shi
 
 ### Evaluation ###
 Experiment on the SKDC protype
-- Upload /SKDC/key_server_skdc/<strong>key_server_skdc.ino</strong> to the Arduino Due board.
-- Upload /SKDC/nodes_skdc/<strong>nodes_skdc.ino</strong> to each Arduino Uno boards.
-- Press "reset" button on the Arduino Due board to start running the protocol.
-- Check the result at the Serial Monitor.
+- Open 3 Arduino IDE instances for the connected Due and Uno boards. Make sure the COM and Board configuration are correct (under "tool" bar). Then:
+     - IDE 1: Upload /SKDC/key_server_skdc/<strong>key_server_skdc.ino</strong> to the Arduino Due. Open Serial Monitor.
+     - IDE 2: Upload /SKDC/nodes_skdc_1/<strong>nodes_skdc_1.ino</strong> to Arduino Uno 1. Open Serial Monitor.
+     - IDE 3: Upload /SKDC/nodes_skdc_2/<strong>nodes_skdc_2.ino</strong> to Arduino Uno 2. Open Serial Monitor.
+- Press "reset" button on the Arduino Due board to start running the protocol for distributuib one message session key.
+- Check the result at the Serial Monitors.
+Try different <em>N</em> (from {2,3,4,5,6}, the number of simulated normal ECUs). Please follow the N options used in following Table:
+
+| N in key_server.ino  | 2 | 3 | 4 | 5 | 6 |
+| --- | --- |--- | --- | --- | --- | 
+| N in node_skdc_1.ino | 1 | 2 | 2 | 3 | 3 |
+| N in node_skdc_2.ino | 1 | 1 | 2 | 2 | 3 |
 
 Experiment on the SSKT protype
-- Upload /SSKT/key_server_sskt/<strong>key_server_sskt.ino</strong> to the Arduino Due board.
-- Upload /SSKT/nodes_sskt/<strong>nodes_sskt.ino</strong> to each Arduino Uno boards.
-- Press "reset" button on the Arduino Due board to start running the protocol.
-- Check the result at the Serial Monitor.
-
-For both SKDC and SSKT experiments, try different <em>N</em> (from {2,3,4,5,6}, the number of simulated normal ECUs) to reproduce the result in the paper (Table 3). For any setup, keep the same <em>M, N</em> in the <strong>key_server</strong> and <strong>nodes</strong> programs.
-
+- Following the same procedure but with the SSKT files.
+- Current N=2 in key_server.ino can work perfectly.
