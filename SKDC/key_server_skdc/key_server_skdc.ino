@@ -19,9 +19,9 @@ double start0, start1, start2, end0, endt1, endt2, elapsed0, elapsed1, elapsed2;
 
 /* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
 const int M=1; // Number of MSG IDs. Please fix M = 1.
-const int N=6; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
+const int N=5; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
-const int ArtDELAY = 10; // Artifitial delay
+const int ArtDELAY = 40; // Artifitial delay
 
 uint8_t epoch[8]={0,0,0,0,0,0,0,0};
 uint8_t Pre_shared_key[6][16]={ // We simulate up to 6 ECUs with 2 Uno boards
@@ -95,7 +95,7 @@ void send_kdmsg(int e, int m)
 //          Serial.print("\t");
 //    }
 //    Serial.println();
-    delay(ArtDELAY);
+//    delay(ArtDELAY);
     
     CAN.sendMsgBuf(MID, 1, 8, Encrypted_key);
 //    Serial.print("EnKey1:\t");
@@ -104,7 +104,7 @@ void send_kdmsg(int e, int m)
 //          Serial.print("\t");
 //    }
 //    Serial.println();
-    delay(ArtDELAY);
+//    delay(ArtDELAY);
 
     CAN.sendMsgBuf(MID, 1, 8, &Encrypted_key[8]);
 //    Serial.print("EnKey2:\t");
@@ -113,7 +113,7 @@ void send_kdmsg(int e, int m)
 //          Serial.print("\t");
 //    }
 //    Serial.println();
-    delay(ArtDELAY);
+//    delay(ArtDELAY);
     
     CAN.sendMsgBuf(MID, 1, 8, hmac);
 //    Serial.print("HMAC:\t");
@@ -308,11 +308,11 @@ void loop() {
             Serial.print(elapsed1/1000);
             Serial.println();
             Serial.print("Time for key distribution (ms): ");
-            Serial.println(elapsed2/1000 - 4*N*ArtDELAY);
+            Serial.println(elapsed2/1000);
             Serial.print("Sum (ms): ");
-            Serial.println((elapsed1+elapsed2)/1000 - 4*N*ArtDELAY);
-            Serial.print("Time for send a KDMSG (ms): ");
-            Serial.println(elapsed0/N/1000);
+            Serial.println((elapsed1+elapsed2)/1000);
+            Serial.print("Time for sending all KDMSGs minus artificial delays (ms): ");
+            Serial.println(elapsed0/1000 - ArtDELAY*N);
             Serial.println();
           }
     

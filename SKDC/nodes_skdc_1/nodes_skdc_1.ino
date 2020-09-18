@@ -6,7 +6,7 @@
 #include <AES.h>
 #include <SHA256.h>
 
-const int M=1; // Number of MSG IDs. M=1 is used in the paper
+const int M=1; // Number of MSG IDs. Please fix M = 1.
 const int N=3; // Number of normal ECUs with the max of 3 at each Uno board
 
 //set CS pin
