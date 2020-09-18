@@ -68,7 +68,7 @@ arduino --board arduino:avr:uno --upload nodes_skdc_1/nodes_skdc_1.ino --port /d
 ```
 Open Serial Monitor for this board:
 ```bash
-screen /dev/ttyACM2 19200
+screen /dev/ttyACM2 115200
 ```
 Keep this Serial Monitor in place and open a new one:
 ```bash
@@ -81,7 +81,7 @@ arduino --board arduino:avr:uno --upload nodes_skdc_2/nodes_skdc_2.ino --port /d
 ```
 Open Serial Monitor for this board:
 ```bash
-screen /dev/ttyACM3 19200
+screen /dev/ttyACM3 115200
 ```
 Keep this Serial Monitor in place and open a new one:
 ```bash
@@ -94,7 +94,7 @@ arduino --board arduino:sam:arduino_due_x_dbg --upload key_server_skdc/key_serve
 ```
 Open Serial Monitor for this board:
 ```bash
-screen /dev/ttyACM0 19200
+screen /dev/ttyACM0 9600
 ```
 Now you should see the session key generated at the beginning, as well as different runtime measures. Then you can switch to other Serial Monitors to check the other nodes have obtained the session key, by simply pressing the following to switch to next screen:
 ```bash
