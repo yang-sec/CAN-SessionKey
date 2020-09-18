@@ -311,7 +311,7 @@ void loop() {
             Serial.println(elapsed2/1000);
             Serial.print("Sum (ms): ");
             Serial.println((elapsed1+elapsed2)/1000);
-            Serial.print("Time for sending all KDMSGs minus artificial delays (ms): ");
+            Serial.print("Time for sending all N KDMSGs minus artificial delays (ms): ");
             Serial.println(elapsed0/1000 - ArtDELAY*N);
             Serial.println();
           }
