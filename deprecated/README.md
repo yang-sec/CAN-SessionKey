@@ -6,6 +6,126 @@ The code consists of two independent parts:
 1. Benchmark evaluation programs for indivudual crypto operations and extrapolation analyses (for Section 6.1, 6.2 of the paper).
 2. A prototype implementation of SKDC and SSKT, along with hardware specification and evaluation program (for Section 6.3 of the paper).
 
+## Dear ACSAC'20 Artifact Evaluation Reviewers:
+
+<strong>Here are the steps to quickly generate the evaluation results with our Linux environment. The content in the remaining sections (starting from Preliminaries) can be used as a reference if you would like build your own hardware system.</strong>
+     
+First of all, remote login our Linux environment (username and password are provided in HotCRP). Use the following command to check connected Arduino boards and the port number:
+```bash
+~/bin/arduino-cli board list
+```
+
+
+### Part 1
+
+We only need one Arduino Uno for benchmark tests. This board is connected via port ttyACM0.
+
+- Move to the Benchmark directory:
+```bash
+cd ~/CAN-SessionKey/Benchmark/
+```
+
+- Test AES encryption and decryption:
+```bash
+arduino --upload testAES/testAES.ino --port /dev/ttyACM0
+```
+- Enter the Serial Monitor and check result:
+```bash
+screen /dev/ttyACM1 9600
+```
+- Exit the Serial Monitor and vacate the port. In the monitor screen, press the following sequentially:
+```bash
+^ctrl+a
+k
+y
+```
+
+- Test SHA3_256:
+```bash
+arduino --upload testSHA3_256/testSHA3_256.ino --port /dev/ttyACM0
+
+```
+- Then enter the Serial Monitor, check result, and exit.
+
+- Test the Lagrange polynomial recovery algorithm used in the SSKT protocol:
+```bash
+arduino --upload testPolynomial/testPolynomial.ino --port /dev/ttyACM0
+```
+- Then enter the Serial Monitor, check result, and exit.
+
+### Part 2 - SKDC
+We assign port ttyACM3 to the Arduino Due (KS), port ttyACM1 to the first Arduino Uno (node 1), and ttyACM2 to the second Arduino Uno (node 2).
+We managed to remotely test SKDC without pressing "reset" button with the following procedures (in exact sequence):
+
+Move to the SKDC directory:
+```bash
+cd ~/CAN-SessionKey/SKDC/
+```
+
+Upload the node1 program onto the 1st Uno board (through ttyACM1):
+```bash
+arduino --board arduino:avr:uno --upload nodes_skdc_1/nodes_skdc_1.ino --port /dev/ttyACM1
+```
+Open Serial Monitor for this board:
+```bash
+screen /dev/ttyACM1 115200
+```
+Keep this Serial Monitor in place and open a new screen:
+```bash
+^ctrl+a
+c
+```
+Upload the node2 program onto the 2nd Uno board (through ttyACM2):
+```bash
+arduino --board arduino:avr:uno --upload nodes_skdc_2/nodes_skdc_2.ino --port /dev/ttyACM2
+```
+Open Serial Monitor for this board:
+```bash
+screen /dev/ttyACM2 115200
+```
+Keep this Serial Monitor in place and open a new screen:
+```bash
+^ctrl+a
+c
+```
+Upload the key_server program onto the Due board (through ttyACM0):
+```bash
+arduino --board arduino:sam:arduino_due_x_dbg --upload key_server_skdc/key_server_skdc.ino --port /dev/ttyACM3
+```
+Open Serial Monitor for this board:
+```bash
+screen /dev/ttyACM3 115200
+```
+Now the session key generated at the beginning (this output may be unstable due to the serial communication issues), as well as different runtime measures. 
+Then you can switch to other screens to check the other nodes have obtained the same session key, by simply pressing the following to switch to next screen:
+```bash
+^ctrl+a
+n
+```
+When done, please press the following in a monitor screen to exit Serial Monitor:
+```bash
+^ctrl+a
+k
+y
+```
+And type the following to terminate ports and end experiment:
+```bash
+pkill screen
+```
+
+You can repeat the whole process with different N by changing the source codes (with vim for example). Please use only the following options: 
+| N in key_server.ino  | 2 | 3 | 4 | 5 | 6 |
+| --- | --- |--- | --- | --- | --- | 
+| N in node_skdc_1.ino | 1 | 2 | 2 | 3 | 3 |
+| N in node_skdc_2.ino | 1 | 1 | 2 | 2 | 3 |
+
+<strong>Please note that the runtimes results will be different from Table 3 of our paper; here we introduced artificial delays between protocol messages for more stability in this test. We will keep this modification and update Table 3 with detailed discussion in the final paper.</strong>
+
+
+
+### Part 2 - SSKT
+For this part, we have to manually press the Due board's reset button in order to trigger stable outputs at all boards. We demontrate this with a [YouTube video](https://youtu.be/KDDISrVCJYA).
+
 ## Preliminaries ##
 
 ### How to Run Program with Arduino ###
