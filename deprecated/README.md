@@ -1,3 +1,5 @@
+**This version contains instruction on remote access (no longer available) for ACSAC 2020 AE reviewers.
+
 # CAN-SessionKey
 This repo includes the hardware specs, code, and documentation for evaluating SKDC and SSKT, two session key distribution protocols for CAN/CAN-FD bus. Background information and detailed protocol workflow can be found in our ACSAC'20 (Dec 7-11, 2020) paper <em>Session Key Distribution Made Practical for CAN and CAN-FD Message Authentication.</em>
 
@@ -6,7 +8,7 @@ The code consists of two independent parts:
 1. Benchmark evaluation programs for indivudual crypto operations and extrapolation analyses (for Section 6.1, 6.2 of the paper).
 2. A prototype implementation of SKDC and SSKT, along with hardware specification and evaluation program (for Section 6.3 of the paper).
 
-## Dear ACSAC'20 Artifact Evaluation Reviewers:
+## For ACSAC'20 Artifact Evaluation Reviewers:
 
 <strong>Here are the steps to quickly generate the evaluation results with our Linux environment. The content in the remaining sections (starting from Preliminaries) can be used as a reference if you would like build your own hardware system.</strong>
      
