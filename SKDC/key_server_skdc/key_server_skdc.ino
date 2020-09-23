@@ -18,23 +18,21 @@ SHA256 hash;
 
 /* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
 const int M=1; // Number of MSG IDs. Please fix M = 1.
-const int N=5; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
+const int N=3; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
-const int ArtDELAY = 50; // Artifitial delay
+//const int ArtDELAY = 0; // Artifitial delay
 
 uint8_t epoch[8]={0,0,0,0,0,0,0,0};
 uint8_t Pre_shared_key[6][16]={ // We simulate up to 6 ECUs with 2 Uno boards
   {0x63,0x4a,0xcc,0xa0,0xcc,0xd6,0xe,0xe0,0xad,0x70,0xd2,0xdb,0x9e,0xd2,0xa3,0x28},  // ECU 1 at Uno 1
-  {0x2c,0xeb,0x89,0x11,0x5e,0x74,0xe6,0xd8,0xf6,0x8d,0xe2,0x33,0xad,0xb7,0x7b,0x4f}, // ECU 1 at Uno 2
-  {0x4f,0x9d,0xae,0xca,0xe3,0x15,0xad,0xf8,0x2d,0x73,0x39,0x83,0x29,0x99,0xcb,0x3c}, // ECU 2 at Uno 1
-  {0xc1,0x3d,0x28,0xec,0x84,0xe6,0xb7,0x49,0x9e,0xd7,0xa9,0x7e,0xdd,0x4,0x8f,0xf6},  // ECU 2 at Uno 2
-  {0x5b,0x47,0x27,0xe8,0x3c,0xb,0xf1,0x36,0xee,0x93,0xb,0x35,0x76,0xed,0x6a,0x2},    // ECU 3 at Uno 1
-  {0x1b,0x28,0xde,0x9b,0xd6,0x9c,0xb4,0x6,0x77,0xf5,0x4f,0xb7,0xd4,0x15,0x78,0x76} // ECU 3 at Uno 2
+  {0x2c,0xeb,0x89,0x11,0x5e,0x74,0xe6,0xd8,0xf6,0x8d,0xe2,0x33,0xad,0xb7,0x7b,0x4f}, // ECU 2 at Uno 2
+  {0x4f,0x9d,0xae,0xca,0xe3,0x15,0xad,0xf8,0x2d,0x73,0x39,0x83,0x29,0x99,0xcb,0x3c}, // ECU 3 at Uno 3
+  {0xc1,0x3d,0x28,0xec,0x84,0xe6,0xb7,0x49,0x9e,0xd7,0xa9,0x7e,0xdd,0x4,0x8f,0xf6},  // ECU 4 at Uno 4
+  {0x5b,0x47,0x27,0xe8,0x3c,0xb,0xf1,0x36,0xee,0x93,0xb,0x35,0x76,0xed,0x6a,0x2},    // ECU 5 at Uno 5
+  {0x1b,0x28,0xde,0x9b,0xd6,0x9c,0xb4,0x6,0x77,0xf5,0x4f,0xb7,0xd4,0x15,0x78,0x76}   // ECU 6 at Uno 6
 };
 
-//unsigned long EID[3]={0x000800,0x001800,0x002800};
-unsigned long EID[6]={0x000800, 0x001000, 0x001800, 0x002000, 0x002800, 0x003000};
-//unsigned long CID[3][M];
+unsigned long EID[6]={0x001, 0x002, 0x003, 0x004, 0x005, 0x006}; // Within 11 bits
 int counter[N];
 int counterTT;
 
@@ -73,10 +71,10 @@ void Session_key_generation(){
 // Send out KDMSG to a certain ECU e for MSG m
 void send_kdmsg(int e, int m)
 {
-    unsigned long MID;
-    MID = EID[e] + m + 1;
+    unsigned long ID;
+    ID = EID[e]*0x100000 + m + 1; // We let (m+1) be the MID, so the extendted CAN ID is EID||MID
 //    Serial.print("------- KDMSG with ID: ");
-//    Serial.print(MID,HEX);
+//    Serial.print(ID,HEX);
 //    Serial.print(" sent to node ");
 //    Serial.print(e);
 //    Serial.println(" -------");
@@ -84,12 +82,12 @@ void send_kdmsg(int e, int m)
     AES128.setKey(Pre_shared_key[e],16);
     AES128.encryptBlock(Encrypted_key,Session_key[m]);
     hash.resetHMAC(Pre_shared_key[e], 16);
-    hash.update(&MID, sizeof(MID));
+    hash.update(&ID, sizeof(ID));
     hash.update(epoch, 8);
     hash.update(Session_key[m], 16);
     hash.finalizeHMAC(Pre_shared_key[e], 16, hmac, 8);
     
-    CAN.sendMsgBuf(MID, 1, 8, epoch);
+    CAN.sendMsgBuf(ID, 1, 8, epoch);
 //    Serial.print("Epoch:\t");
 //    for (int i = 0; i < 8; i++) { // print the data
 //          Serial.print(epoch[i],HEX);
@@ -98,7 +96,7 @@ void send_kdmsg(int e, int m)
 //    Serial.println();
 //    delay(ArtDELAY);
     
-    CAN.sendMsgBuf(MID, 1, 8, Encrypted_key);
+    CAN.sendMsgBuf(ID, 1, 8, Encrypted_key);
 //    Serial.print("EnKey1:\t");
 //    for (int i = 0; i < 8; i++) { // print the data
 //          Serial.print(Encrypted_key[i],HEX);
@@ -107,7 +105,7 @@ void send_kdmsg(int e, int m)
 //    Serial.println();
 //    delay(ArtDELAY);
 
-    CAN.sendMsgBuf(MID, 1, 8, &Encrypted_key[8]);
+    CAN.sendMsgBuf(ID, 1, 8, &Encrypted_key[8]);
 //    Serial.print("EnKey2:\t");
 //    for (int i = 0; i < 8; i++) { // print the data
 //          Serial.print(Encrypted_key[i+8],HEX);
@@ -116,23 +114,23 @@ void send_kdmsg(int e, int m)
 //    Serial.println();
 //    delay(ArtDELAY);
     
-    CAN.sendMsgBuf(MID, 1, 8, hmac);
+    CAN.sendMsgBuf(ID, 1, 8, hmac);
 //    Serial.print("HMAC:\t");
 //    for (int i = 0; i < 8; i++) { // print the data
 //          Serial.print(hmac[i],HEX);
 //          Serial.print("\t");
 //    }
 //    Serial.println();
-    delay(ArtDELAY);
+//    delay(ArtDELAY);
 }
 
 //function for Hash checking
 //Gurantee the message intergity
-uint8_t check_message_digest(unsigned long MID, uint8_t MAC[8], int e){
+uint8_t check_message_digest(unsigned long ID, uint8_t MAC[8], int e){
 	uint8_t tmp_MAC[8];
 	uint8_t tmp_flag=0;
 	hash.resetHMAC(Pre_shared_key[e], 16);
-	hash.update(&MID, sizeof(MID));
+	hash.update(&ID, sizeof(ID));
 	hash.update(epoch, 8);
 	for(int j=0;j<M;j++){
 		hash.update(Session_key[j], 16);
@@ -181,7 +179,7 @@ void setup() {
       for(int k=0;k<16;k++)
       {
         Serial.print(Session_key[m][k], HEX);
-        Serial.print("\t");
+        Serial.print(" ");
       }
       Serial.println();
     }
@@ -194,6 +192,7 @@ void setup() {
       {    
           send_kdmsg(e,m);
       }
+//      delay(10);
     }
     elapsed0 += micros() - start2;
       
@@ -231,22 +230,22 @@ void loop() {
     
         switch(canId)
         {
-          case 0x010800:
+          case 0x201:
             ecu = 0;
             break;
-          case 0x011000:
+          case 0x202:
             ecu = 1;
             break;
-          case 0x011800:
+          case 0x203:
             ecu = 2;
             break;
-          case 0x012000:
+          case 0x204:
             ecu = 3;
             break;
-          case 0x012800:
+          case 0x205:
             ecu = 4;
             break;
-          case 0x013000:
+          case 0x206:
             ecu = 5;
             break;
         }
@@ -314,8 +313,8 @@ void loop() {
             Serial.println(elapsed2/1000);
             Serial.print("Sum (ms): ");
             Serial.println((elapsed1+elapsed2)/1000);
-            Serial.print("Time for sending all KDMSGs minus artificial delays (micro sec): ");
-            Serial.println(elapsed0/1000 - ArtDELAY*N);
+            Serial.print("Time for sending all KDMSGs (ms): ");
+            Serial.println(elapsed0/1000);
             Serial.println();
 
 //            for(int m=0;m<M;m++)
