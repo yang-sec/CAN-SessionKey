@@ -34,11 +34,10 @@ MCP_CAN CAN(SPI_CS_PIN);
 AESSmall128 AES128;
 SHA256 hash;
 
-//uint8_t counter;
 uint8_t Session_key[M][16];
 uint8_t epoch[8]={0,0,0,0,0,0,0,0};
 
-int counter;
+int kd_counter;
 
 void array_assignment(uint8_t *data1,uint8_t *data2, uint8_t data_len){
   for(int k=0;k<data_len;k++){
@@ -54,6 +53,7 @@ uint8_t recover_session_key(uint8_t encrypted_key[16], int m)
 
 void display_session_key()
 {
+  Serial.println();
   Serial.println("------- get session key -------");
 
   for(int m=0;m<M;m++)
@@ -70,103 +70,109 @@ void display_session_key()
   }
 }
   
-uint8_t check_hmac(unsigned long ID, uint8_t hmac[8], int m)
+uint8_t check_kd_hmac(unsigned long ID, uint8_t hmac[8], int m)
 {
-	uint8_t new_hmac[8];
+	uint8_t tmp_hmac[8];
 	hash.resetHMAC(Pre_shared_key, 16);
 	hash.update(&ID, sizeof(ID));
 	hash.update(epoch, 8);
 	hash.update(Session_key[m], 16);
-	hash.finalizeHMAC(Pre_shared_key, 16, new_hmac, 8);
+	hash.finalizeHMAC(Pre_shared_key, 16, tmp_hmac, 8);
 	for(int k=0;k<8;k++)
 	{
-		if(new_hmac[k]!=hmac[k])
+		if(tmp_hmac[k]!=hmac[k])
 		{
+      Serial.println("KD_MSG HMAC does not match");
 			return 1;
 	  } 
 	}
 	return 0;
 }
 
-
+// Send CO_MSG to KS
 void send_back_message(uint8_t flag)
 {
 	uint8_t new_hmac[8];
-  unsigned long ID = 0x2*0x100 + EID;
+  unsigned long ID = 0x200 + EID; // In binary: 010||EID
   hash.resetHMAC(Pre_shared_key, 16);
   hash.update(&ID, sizeof(ID));
   hash.update(epoch, 8);
       
-	if(flag==0){
-			for(int m=0;m<M;m++)
-			{
-				hash.update(Session_key[m], 16);
-			}
-			hash.finalizeHMAC(Pre_shared_key, 16, new_hmac, 8);
+	if(flag==0)
+	{
+		for(int m=0;m<M;m++)
+		{
+			hash.update(Session_key[m], 16);
+		}
+		hash.finalizeHMAC(Pre_shared_key, 16, new_hmac, 8);
 
 //      Serial.print("------- send COMSG with ID ");
 //      Serial.print(ID,HEX);
 //      Serial.println(" -------");
-  
-			CAN.sendMsgBuf(ID, 0, 8, epoch);
+
+		CAN.sendMsgBuf(ID, 0, 8, epoch);
 //      Serial.print("Epoch:\t");
 //      for (int i = 0; i < 8; i++) { // print the data
 //            Serial.print(epoch[i],HEX);
 //            Serial.print("\t");
 //      }
 //      Serial.println();
-			
-			CAN.sendMsgBuf(ID, 0, 8, new_hmac);
+		
+		CAN.sendMsgBuf(ID, 0, 8, new_hmac);
 //      Serial.print("HMAC:\t");
 //      for (int i = 0; i < 8; i++) { // print the data
 //            Serial.print(new_hmac[i],HEX);
 //            Serial.print("\t");
 //      }
 //      Serial.println();
-			}
-	else{ 
-      Serial.println("[KDMSG MAC does not check]");
-			hash.finalizeHMAC(Pre_shared_key, 16, new_hmac, 8);
-			CAN.sendMsgBuf(ID, 0, 8, epoch);
-//			delay(10);
-			CAN.sendMsgBuf(ID, 0, 8, new_hmac);
-//      delay(10);
-      
-		}
+	}
+	else
+	{ 
+    Serial.println("[KDMSG MAC does not check]");
+		hash.finalizeHMAC(Pre_shared_key, 16, new_hmac, 8);
+		CAN.sendMsgBuf(ID, 0, 8, epoch);
+		CAN.sendMsgBuf(ID, 0, 8, new_hmac);      
+	}
 }
 
-void setup() {
-    Serial.begin(115200);
-	// init can bus : baudrate = 500k
-    while (CAN_OK != CAN.begin(CAN_500KBPS)) {
-        Serial.println("CAN BUS Shield init fail");
-        Serial.println("Init CAN BUS Shield again");
-        delay(100);
-    }
+void setup() 
+{
+  Serial.begin(115200);
+  while (CAN_OK != CAN.begin(CAN_500KBPS)) // init can bus
+  {
+    Serial.println("CAN BUS Shield init fail");
+    Serial.println("Init CAN BUS Shield again");
+    delay(100);
+  }
 	epoch[7]=1;
+ 
 	//Initilize Masks and Filters 
 	//Different ECU nodes need different Masks and Filters initilization to receive different message
-    CAN.init_Mask(0, 1, 0xffffffff); // Theoretically support up to 16^3 MIDs
-    CAN.init_Mask(1, 1, 0xffffffff); // Theoretically support up to 16^3 MIDs
-    CAN.init_Filt(0, 1, EID*0x100000 + 1); // KDMSG ID
-    CAN.init_Filt(1, 1, EID*0x100000 + 2); // KDMSG ID
-    Serial.println("CAN BUS Shield init ok!");
-    Serial.print("SKDC Node. EID = 0x");
-    Serial.println(EID, HEX);
-    counter = 0;
+  CAN.init_Mask(0, 1, 0xffffffff);
+  CAN.init_Mask(1, 1, 0xffffffff);
+  CAN.init_Filt(0, 1, (0x100+EID)*0x100000 + 1); // For KD_MSG of MID 1
+  CAN.init_Filt(1, 1, (0x100+EID)*0x100000 + 2); // For KD_MSG of MID 2
+  Serial.println("CAN BUS Shield init ok!");
+  Serial.print("SKDC Node. EID = 0x");
+  Serial.println(EID, HEX);
+  epoch[7]=1;
+  kd_counter = 0;
 }
 
 
-void loop() {
-  uint8_t len = 8;
-  uint8_t buf[8];
-  unsigned long canId;
-  uint8_t new_epoch[8];
-  uint8_t tmp_encrypted_key[16];
-  uint8_t hmac[8];
-  uint8_t flag;
-  unsigned long MID; // 
- 
+uint8_t len;
+uint8_t buf[8];
+unsigned long canId;
+uint8_t tmp_epoch[8];
+uint8_t tmp_encrypted_key[16];
+uint8_t hmac[8];
+uint8_t flag;
+unsigned long MID;
+  
+void loop() 
+{
+  flag = 0;
+  
   if (CAN_MSGAVAIL == CAN.checkReceive())  // check if data coming
   {
     CAN.readMsgBuf(&len, buf);    // read data
@@ -182,27 +188,24 @@ void loop() {
 //      }
 //      Serial.println();
 
-    if(canId >= EID*0x100000+1 && canId < EID*0x100000+0xfff)
+    if(canId >= (0x100+EID)*0x100000+1 && canId <= (0x100+EID)*0x100000+0xfff) // KD_MSG
     {
-      MID = canId - EID*0x100000;
+      MID = canId - (0x100+EID)*0x100000;
     }
     else
     {
-      Serial.println("MSG ID unsupported.");
+      Serial.println("CAN ID unsupported.");
       return;
     }
     
-    switch(counter%4)
+    switch(kd_counter%4)
     {
       case 0:
-        array_assignment(new_epoch,buf,8);
-        if(new_epoch[7]==1)
+        array_assignment(tmp_epoch,buf,8);
+        if(tmp_epoch[7]!=epoch[7])
         {
-          flag = 0;
-        }
-        else
-        {
-          flag = 1;
+          Serial.println("KD_MSG epoch outdated.");
+          kd_counter--;
         }
         break;
       case 1:
@@ -214,20 +217,19 @@ void loop() {
       case 3:
         array_assignment(hmac,buf,8);
         recover_session_key(tmp_encrypted_key, MID-1);
-        flag = check_hmac(canId, hmac, MID-1);
+        flag = check_kd_hmac(canId, hmac, MID-1);
         break;
     }
-    counter++;
+    kd_counter++;
     
-    if(counter >= 4*M)
+    if(kd_counter >= 4*M)
 		{
       for(int repeat=0;repeat<5;repeat++)
       {
         send_back_message(flag);
 //        delay(3);
       }
-      counter = 0;
-      Serial.println();
+      kd_counter = 0;
       display_session_key();
     }     
   }

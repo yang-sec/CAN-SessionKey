@@ -22,7 +22,6 @@ const int N=6; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used 
 
 //const int ArtDELAY = 0; // Artifitial delay
 
-uint8_t epoch[8]={0,0,0,0,0,0,0,0};
 uint8_t Pre_shared_key[6][16]={ // We simulate up to 6 ECUs with 2 Uno boards
   {0x63,0x4a,0xcc,0xa0,0xcc,0xd6,0xe,0xe0,0xad,0x70,0xd2,0xdb,0x9e,0xd2,0xa3,0x28},  // ECU 1 at Uno 1
   {0x2c,0xeb,0x89,0x11,0x5e,0x74,0xe6,0xd8,0xf6,0x8d,0xe2,0x33,0xad,0xb7,0x7b,0x4f}, // ECU 2 at Uno 2
@@ -32,30 +31,32 @@ uint8_t Pre_shared_key[6][16]={ // We simulate up to 6 ECUs with 2 Uno boards
   {0x1b,0x28,0xde,0x9b,0xd6,0x9c,0xb4,0x6,0x77,0xf5,0x4f,0xb7,0xd4,0x15,0x78,0x76}   // ECU 6 at Uno 6
 };
 
-unsigned long EID[6]={0x001, 0x002, 0x003, 0x004, 0x005, 0x006}; // Within 11 bits
+unsigned long EID[6]={0x001, 0x002, 0x003, 0x004, 0x005, 0x006}; // Within 8 bits
 int counter[N];
 int counterTT;
 
 //Initialize time variable for elapse time calculation
 double start0, start1, start2, end0, endt1, endt2, elapsed0, elapsed1, elapsed2;
 uint8_t Session_key[M][16];
+uint8_t epoch[8]={0};
 
 // Tmp variables
 uint8_t Encrypted_key[16];
 uint8_t hmac[8];
 bool finished;
                  
-void array_assignment(uint8_t *data1,uint8_t *data2, uint8_t data_len){
-for(int k=0;k<data_len;k++){
-  data1[k]=data2[k];
-  }  
+void array_assignment(uint8_t *data1,uint8_t *data2, uint8_t data_len)
+{
+  for(int k=0;k<data_len;k++)
+  {
+    data1[k]=data2[k];
+  } 
 }
 
-//Generate session key and broadcast it to all ECU nodes
-//Time delay is added to make CAN protocol work more smoothly
-void Session_key_generation(){
-  
-  
+// Generate session key and broadcast it to all ECU nodes
+// Time delay is added to make CAN protocol work more smoothly
+void Session_key_generation()
+{
 	RNG.begin("Session_key_generation");
 	RNG.rand(&Session_key[0][0], M*16);
 //	for(int m=0;m<M;m++){
@@ -68,26 +69,26 @@ void Session_key_generation(){
 //	}
 }
 
-// Send out KDMSG to a certain ECU e for MSG m
+// Send out KDMSGs per ECU per MSG
 void send_kdmsg(int e, int m)
 {
-    unsigned long ID;
-    ID = EID[e]*0x100000 + m + 1; // We let (m+1) be the MID, so the extendted CAN ID is EID||MID
-//    Serial.print("------- KDMSG with ID: ");
-//    Serial.print(ID,HEX);
-//    Serial.print(" sent to node ");
-//    Serial.print(e);
-//    Serial.println(" -------");
-   
-    AES128.setKey(Pre_shared_key[e],16);
-    AES128.encryptBlock(Encrypted_key,Session_key[m]);
-    hash.resetHMAC(Pre_shared_key[e], 16);
-    hash.update(&ID, sizeof(ID));
-    hash.update(epoch, 8);
-    hash.update(Session_key[m], 16);
-    hash.finalizeHMAC(Pre_shared_key[e], 16, hmac, 8);
-    
-    CAN.sendMsgBuf(ID, 1, 8, epoch);
+  unsigned long ID;
+  ID = (0x100+EID[e])*0x100000 + m + 1; // We let (m+1) be the MID, so the extendted CAN ID is EID||MID
+//  Serial.print("------- KDMSG with ID: ");
+//  Serial.print(ID,HEX);
+//  Serial.print(" sent to node ");
+//  Serial.print(e);
+//  Serial.println(" -------");
+ 
+  AES128.setKey(Pre_shared_key[e], 16);
+  AES128.encryptBlock(Encrypted_key, Session_key[m]);
+  hash.resetHMAC(Pre_shared_key[e], 16);
+  hash.update(&ID, sizeof(ID));
+  hash.update(epoch, 8);
+  hash.update(Session_key[m], 16);
+  hash.finalizeHMAC(Pre_shared_key[e], 16, hmac, 8);
+  
+  CAN.sendMsgBuf(ID, 1, 8, epoch);
 //    Serial.print("Epoch:\t");
 //    for (int i = 0; i < 8; i++) { // print the data
 //          Serial.print(epoch[i],HEX);
@@ -95,8 +96,8 @@ void send_kdmsg(int e, int m)
 //    }
 //    Serial.println();
 //    delay(ArtDELAY);
-    
-    CAN.sendMsgBuf(ID, 1, 8, Encrypted_key);
+  
+  CAN.sendMsgBuf(ID, 1, 8, Encrypted_key);
 //    Serial.print("EnKey1:\t");
 //    for (int i = 0; i < 8; i++) { // print the data
 //          Serial.print(Encrypted_key[i],HEX);
@@ -105,7 +106,7 @@ void send_kdmsg(int e, int m)
 //    Serial.println();
 //    delay(ArtDELAY);
 
-    CAN.sendMsgBuf(ID, 1, 8, &Encrypted_key[8]);
+  CAN.sendMsgBuf(ID, 1, 8, &Encrypted_key[8]);
 //    Serial.print("EnKey2:\t");
 //    for (int i = 0; i < 8; i++) { // print the data
 //          Serial.print(Encrypted_key[i+8],HEX);
@@ -113,8 +114,8 @@ void send_kdmsg(int e, int m)
 //    }
 //    Serial.println();
 //    delay(ArtDELAY);
-    
-    CAN.sendMsgBuf(ID, 1, 8, hmac);
+  
+  CAN.sendMsgBuf(ID, 1, 8, hmac);
 //    Serial.print("HMAC:\t");
 //    for (int i = 0; i < 8; i++) { // print the data
 //          Serial.print(hmac[i],HEX);
@@ -124,30 +125,35 @@ void send_kdmsg(int e, int m)
 //    delay(ArtDELAY);
 }
 
-//function for Hash checking
-//Gurantee the message intergity
-uint8_t check_message_digest(unsigned long ID, uint8_t MAC[8], int e){
+// Function for Hash checking on CO_MSG
+uint8_t check_message_digest(unsigned long ID, uint8_t MAC[8], int e)
+{
 	uint8_t tmp_MAC[8];
-	uint8_t tmp_flag=0;
+	uint8_t tmp_flag = 0;
 	hash.resetHMAC(Pre_shared_key[e], 16);
 	hash.update(&ID, sizeof(ID));
 	hash.update(epoch, 8);
-	for(int j=0;j<M;j++){
+	for(int j=0;j<M;j++)
+	{
 		hash.update(Session_key[j], 16);
-		}
+	}
 	hash.finalizeHMAC(Pre_shared_key[e], 16, tmp_MAC, 8);
-	for(int k=0;k<8;k++){
-		if(MAC[e]!=tmp_MAC[e]){
+  
+	for(int k=0;k<8;k++)
+	{
+		if(MAC[e]!=tmp_MAC[e])
+		{
 			Serial.println(MAC[e]);
 			Serial.println(tmp_MAC[e]);
 			return 1;
-			} 
 		}
+	}
   return 0;
 }
 
 
-void setup() {
+void setup() 
+{
     Serial.begin(115200);
 	// init can bus : baudrate = 500k
     while (CAN_OK != CAN.begin(CAN_500KBPS)) {
@@ -176,9 +182,9 @@ void setup() {
     for(int m=0;m<M;m++)
     {
       Serial.println("Session key generated:");
-      for(int k=0;k<16;k++)
+      for(int b=0;b<16;b++)
       {
-        Serial.print(Session_key[m][k], HEX);
+        Serial.print(Session_key[m][b], HEX);
         Serial.print(" ");
       }
       Serial.println();
@@ -190,20 +196,16 @@ void setup() {
       start0 = micros();
       for(int e=0;e<N;e++)
       {    
-          send_kdmsg(e,m);
+          send_kdmsg(e, m);
       }
 //      delay(10);
     }
-    elapsed0 += micros() - start2;
-      
-//    counter=0;
-    
+    elapsed0 += micros() - start2;   
 }
 
 
-
-void loop() {	
-  
+void loop()
+{	
   uint8_t len = 8;
   uint8_t buf[8];
   unsigned long canId;
@@ -227,7 +229,8 @@ void loop() {
 //          Serial.print("\t");
 //        }
 //        Serial.println();
-    
+
+        // We explicitly list out the correspondence between (0x200+EID) and ECU index
         switch(canId)
         {
           case 0x201:
@@ -281,24 +284,17 @@ void loop() {
         {
           counterTT +=counter[e];
         }
-    
-//        Serial.print("counter[");
-//        Serial.print(ecu);
-//        Serial.print("]: ");
-//        Serial.print(counter[ecu]);
-//        Serial.print("\t counterTT: ");
-//        Serial.println(counterTT);
         
         if(counterTT>=2*N)
     		{
-          
-          if(flag==1){
+          if(flag==1)
+          {
            Serial.println();
            Serial.println("Confirmation Fail");
           }
-          else{
+          else
+          {
             endt2 = micros();
-    
             finished = true;
             Serial.println();
             Serial.println("Confirmation Success");
@@ -316,21 +312,6 @@ void loop() {
             Serial.print("Time for sending all KDMSGs (ms): ");
             Serial.println(elapsed0/1000);
             Serial.println();
-
-//            for(int m=0;m<M;m++)
-//            {
-//              Serial.println("Session key distributed:");
-//              for(int k=0;k<16;k++)
-//              {
-//                Serial.print(Session_key[m][k], HEX);
-//                Serial.print("\t");
-//              }
-//              Serial.println();
-//            }
-//              for(int i=0;i<10;i++)
-//              {
-//                Serial.println("------------------------------------------");
-//              }
           }
     
           for(int e=0;e<N;e++)

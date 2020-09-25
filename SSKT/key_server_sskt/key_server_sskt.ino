@@ -7,7 +7,6 @@
 #include <SHA256.h>
 #include <GF256.h>
 #include <RNG.h>
-//#include <TransistorNoiseSource.h>
 #include <Crypto.h>
 
 SHA256 hash;
@@ -39,8 +38,7 @@ uint8_t Pre_shared_key_y[6][16]={
   {0xce,0xda,0x31,0x94,0x8e,0x39,0xdd,0x10,0x4a,0xe5,0xe4,0xfb,0xcd,0x2e,0x64,0x27}};
 uint8_t Session_key[M][16];
 
-unsigned long EID[6]={0x000800, 0x001000, 0x001800, 0x002000, 0x002800, 0x003000};
-unsigned long MID=0x000101; // To start from 0x000101, the plus 1, ...
+unsigned long EID[6]={0x001, 0x002, 0x003, 0x004, 0x005, 0x006}; // Within 8 bits
 int counter[N];
 int counterTT;
 
@@ -51,15 +49,16 @@ double start0, start1, start2, end0, endt1, endt2, elapsed0, elapsed1, elapsed2;
 uint8_t ListTT[5]={0xFC,0xF1,0xCD,0x07,0x13};
 uint8_t List[N-1];
 
-uint8_t epoch[8]={0,0,0,0,0,0,0,0};
-//int counter=0;
+uint8_t epoch[8]={0};
 bool finished;
 
-void array_assignment(uint8_t *array_1, uint8_t *array_2, uint8_t array_len){
-  for(int i=0;i<array_len;i++){
+void array_assignment(uint8_t *array_1, uint8_t *array_2, uint8_t array_len)
+{
+  for(int i=0;i<array_len;i++)
+  {
     array_1[i]=array_2[i];
-    }
   }
+}
 
 //Generate polynomials within GF_256
 void Polynomial_generation(uint8_t Poly_para[M][N][16])
@@ -72,91 +71,90 @@ void Polynomial_generation(uint8_t Poly_para[M][N][16])
   }
 }
 
-//Generate and send random chanllenge via CAN bus
-//Time delays are added to let CAN bus work more smoothly
-void Random_challenge(uint8_t Poly_para[M][N][16], uint8_t Pre_shared_key_x[N][16], uint8_t Pre_shared_key_y[N][16],uint8_t epoch[8]){
+// Send out PRMSGs per ECU
+void send_prmsg(uint8_t Poly_para[M][N][16], uint8_t Pre_shared_key_x[N][16], uint8_t Pre_shared_key_y[N][16],uint8_t epoch[8])
+{
   uint8_t Rtmp[16];
   uint8_t hmac[8];
-  for(int m=0;m<M;m++)
+
+  for(int n=0;n<N;n++)
   {
-    for(int n=0;n<N;n++)
+    unsigned long ID = EID[n];
+    
+    Serial.print("------- Send PRMSG with ID: ");
+    Serial.print(ID,HEX);
+    Serial.print(" to node ");
+    Serial.print(n);
+    Serial.println(" -------");
+    
+    for(int k=0;k<16;k++)
     {
-      unsigned long ID = EID[n] + m + 1;
-      
-      Serial.print("------- Send PRMSG with ID: ");
-      Serial.print(ID,HEX);
-      Serial.print(" to node ");
-      Serial.print(n);
-      Serial.println(" -------");
-      
-      for(int k=0;k<16;k++)
+      Rtmp[k]=0;      
+      for(int l=0;l<N;l++)
       {
-        Rtmp[k]=0;      
-        for(int l=0;l<N;l++)
-        {
-          Rtmp[k]=Rtmp[k]^GF256_Exp[(GF256_Log[Poly_para[m][l][k]]+l*GF256_Log[Pre_shared_key_x[n][k]])%0xff];
-        }   
-        Rtmp[k]=Rtmp[k]^Pre_shared_key_y[n][k];  
-      } 
-      
-      hash.resetHMAC(Pre_shared_key_x[n], 16);
-      hash.update(&ID, sizeof(ID));
-      hash.update(epoch, 8);
-      hash.update(Rtmp, 16);
-      hash.finalizeHMAC(Pre_shared_key_x[n], 16, hmac, 8);
-      
-      CAN.sendMsgBuf(ID, 1, 8, epoch);
-      Serial.print("epoch:\t");
-      for (int i = 0; i < 8; i++) 
-      {
-        Serial.print(epoch[i],HEX);
-        Serial.print("\t");
-      }
-      Serial.println();
-      delay(ArtDELAY1);
-      
-      CAN.sendMsgBuf(ID, 1, 8, Rtmp);
-      Serial.print("Rtmp1:\t");
-      for (int i = 0; i < 8; i++) 
-      {
-        Serial.print(Rtmp[i],HEX);
-        Serial.print("\t");
-      }
-      Serial.println();
-      delay(ArtDELAY1);
-      
-      CAN.sendMsgBuf(ID, 1, 8, &Rtmp[8]);
-      Serial.print("Rtmp2:\t");
-      for (int i = 0; i < 8; i++) 
-      {
-        Serial.print(Rtmp[i+8],HEX);
-        Serial.print("\t");
-      }
-      Serial.println();
-      delay(ArtDELAY1);
-      
-      CAN.sendMsgBuf(ID, 1, 8, hmac);
-      Serial.print("hmac:\t");
-      for (int i = 0; i < 8; i++) 
-      {
-        Serial.print(hmac[i],HEX);
-        Serial.print("\t");
-      }
-      Serial.println();
-      delay(ArtDELAY);
-     }
+        Rtmp[k]=Rtmp[k]^GF256_Exp[(GF256_Log[Poly_para[m][l][k]]+l*GF256_Log[Pre_shared_key_x[n][k]])%0xff];
+      }   
+      Rtmp[k]=Rtmp[k]^Pre_shared_key_y[n][k];  
+    }
+    
+    hash.resetHMAC(Pre_shared_key_x[n], 16);
+    hash.update(&ID, sizeof(ID));
+    hash.update(epoch, 8);
+    hash.update(Rtmp, 16);
+    hash.finalizeHMAC(Pre_shared_key_x[n], 16, hmac, 8);
+    
+    CAN.sendMsgBuf(ID, 1, 8, epoch);
+    Serial.print("epoch:\t");
+    for (int i = 0; i < 8; i++) 
+    {
+      Serial.print(epoch[i],HEX);
+      Serial.print("\t");
+    }
+    Serial.println();
+    delay(ArtDELAY1);
+    
+    CAN.sendMsgBuf(ID, 1, 8, Rtmp);
+    Serial.print("Rtmp1:\t");
+    for (int i = 0; i < 8; i++) 
+    {
+      Serial.print(Rtmp[i],HEX);
+      Serial.print("\t");
+    }
+    Serial.println();
+    delay(ArtDELAY1);
+    
+    CAN.sendMsgBuf(ID, 1, 8, &Rtmp[8]);
+    Serial.print("Rtmp2:\t");
+    for (int i = 0; i < 8; i++) 
+    {
+      Serial.print(Rtmp[i+8],HEX);
+      Serial.print("\t");
+    }
+    Serial.println();
+    delay(ArtDELAY1);
+    
+    CAN.sendMsgBuf(ID, 1, 8, hmac);
+    Serial.print("hmac:\t");
+    for (int i = 0; i < 8; i++) 
+    {
+      Serial.print(hmac[i],HEX);
+      Serial.print("\t");
+    }
+    Serial.println();
+    delay(ArtDELAY);
    }
 }
 
-//Generate and broadcast points on the polynomials
-void points(uint8_t Poly_para[M][N][16], uint8_t List[N-1], uint8_t epoch[8]){
-  unsigned long ID=0x00000000;
+// Send out KDMSGs per MSG
+void send_kdmsg(uint8_t Poly_para[M][N][16], uint8_t List[N-1], uint8_t epoch[8])
+{
+  unsigned long ID;
   uint8_t tmp_points[16];
   uint8_t hmac[8];
-  for(int m=0;m<M;m++){
-//    ID=ID+1;
+  for(int m=0;m<M;m++)
+  {
     ID = MID + m;
-
+    
     Serial.print("------- Broadcast KDMSG with ID: ");
     Serial.print(ID,HEX);
     Serial.println(" -------");
@@ -170,9 +168,7 @@ void points(uint8_t Poly_para[M][N][16], uint8_t List[N-1], uint8_t epoch[8]){
     }
     Serial.println();
     delay(200);
-
-    
-     
+  
     for(int n=0;n<N-1;n++)
     {
       //Serial.println();
@@ -226,31 +222,31 @@ void points(uint8_t Poly_para[M][N][16], uint8_t List[N-1], uint8_t epoch[8]){
   } 
 }
   
-//Check data integrity
-void MAC_check(unsigned long ID, uint8_t new_MAC[8], uint8_t tmp_epoch[8]){
-  uint8_t flag=0;
-  uint8_t MAC[8];
-  hash.reset();
-  Serial.print("Receive COMSG from EID: 0x");
-  Serial.println(ID-0x010000,HEX);
-  hash.update(&ID, 4);
-  hash.update(tmp_epoch, 8);
-  for(int s=0; s<M; s++){
-    hash.update(Session_key[s], 16);
-    }
-  hash.finalize(MAC,8);
-  for(int i=0;i<8;i++){
-    if(MAC[i]!=new_MAC[i]){
-      flag=1;
-      }
-    }
-//  if(flag==1){
-//    Serial.println(" - MAC Check Fail");
-//    }
-//  else{
-//    Serial.println(" - MAC Check Success");
-//    }
+// Function for Hash checking on CO_MSG
+uint8_t check_message_digest(unsigned long ID, uint8_t MAC[8], int e)
+{
+  uint8_t tmp_MAC[8];
+  uint8_t tmp_flag = 0;
+  hash.resetHMAC(Pre_shared_key_y[e], 16);
+  hash.update(&ID, sizeof(ID));
+  hash.update(epoch, 8);
+  for(int j=0;j<M;j++)
+  {
+    hash.update(Session_key[j], 16);
   }
+  hash.finalizeHMAC(Pre_shared_key_y[e], 16, tmp_MAC, 8);
+ 
+  for(int k=0;k<8;k++)
+  {
+    if(MAC[e]!=tmp_MAC[e])
+    {
+      Serial.println(MAC[e]);
+      Serial.println(tmp_MAC[e]);
+      return 1;
+    }
+  }
+  return 0;
+}
 
 void setup()
 {
@@ -262,11 +258,10 @@ void setup()
       delay(100);
   }
   Serial.println("CAN BUS Shield init ok!");
-  Serial.print("N = ");
+  Serial.print("SSKT Key Server. #N = ");
   Serial.println(N);
 
   finished = false;
-  
   for(int e=0;e<N-1;e++)
   {
     List[e] = ListTT[e];
@@ -277,7 +272,6 @@ void setup()
     counter[e] = 0;
   }
   counterTT = 0;
-  
   epoch[7]=1;
   elapsed0 = 0;
   uint8_t Poly_para[M][N][16];
@@ -292,27 +286,28 @@ void setup()
     for(int b=0;b<16;b++)
     {
       Serial.print(Session_key[m][b], HEX);
-      Serial.print("\t");
+      Serial.print(" ");
     }
     Serial.println();
   }
-  Serial.println();
    
   start2= micros(); 
   // Send out PR_MSGs
-  Random_challenge(Poly_para,Pre_shared_key_x,Pre_shared_key_y,epoch);
+  send_prmsg(Poly_para, Pre_shared_key_x, Pre_shared_key_y, epoch);
   // Send out KD_MSGs
   start0 = micros();
-  points(Poly_para, List,epoch);
+  send_kdmsg(Poly_para, List, epoch);
   elapsed0 += micros() - start0;
 }
 
-void loop() {
+void loop()
+{
   uint8_t len = 8;
   uint8_t buf[8];
   unsigned long canId;
-  uint8_t new_epoch[8];
-  uint8_t new_MAC[8];
+  uint8_t tmp_epoch[8];
+  uint8_t flag;
+  uint8_t MAC[8];
   int ecu;
   
   if (CAN_MSGAVAIL == CAN.checkReceive()) 
@@ -332,25 +327,26 @@ void loop() {
   //        Serial.print("\t");
   //    }
   //    Serial.println();
-  
+
+      // We explicitly list out the correspondence between (0x200+EID) and ECU index
       switch(canId)
       {
-        case 0x010800:
+        case 0x201:
           ecu = 0;
           break;
-        case 0x011000:
+        case 0x202:
           ecu = 1;
           break;
-        case 0x011800:
+        case 0x203:
           ecu = 2;
           break;
-        case 0x012000:
+        case 0x204:
           ecu = 3;
           break;
-        case 0x012800:
+        case 0x205:
           ecu = 4;
           break;
-        case 0x013000:
+        case 0x206:
           ecu = 5;
           break;
       }
@@ -358,11 +354,20 @@ void loop() {
       switch(counter[ecu])
       {
         case 0:
-          array_assignment(new_epoch, buf, 8);
-          break; 
-        case 1:
-          array_assignment(new_MAC, buf, 8);
-          MAC_check(canId, new_MAC, epoch);
+          array_assignment(tmp_epoch, buf, 8);
+          if(tmp_epoch[7]==epoch[7])
+          {
+            flag=0;
+          }
+          else
+          {
+            flag=1;
+          }
+          break;
+          
+         case 1:
+          array_assignment(MAC, buf, 8);
+          flag=check_message_digest(canId, MAC, ecu);
           break;
       }
   
@@ -376,50 +381,44 @@ void loop() {
       {
         counterTT +=counter[e];
       }
-      
-      
-  //    for(int i=0;i<N;i++)
-  //    {
-  //      uint8_t new_MAC[8];
-  //      if(counter==2*i)
-  //      {
-  //        array_assignment(new_epoch,buf,8);
-  //      }
-  //      else if(counter==2*i+1)
-  //      {
-  //        array_assignment(new_MAC,buf,8);
-  //        MAC_check(canId,new_MAC,epoch);
-  //      }
-  //    }
-          
-  //    counter++;
+
       if(counterTT>=2*N)
       {
-  //      counter=0;
-        endt2 = micros();
-  
-        finished = true;
-        elapsed1= endt1 - start1;
-        elapsed2= endt2 - start2;
-        
-        Serial.println();
-        Serial.print("Time for key generation (ms): ");
-        Serial.print(elapsed1/1000);
-        Serial.println();
-        Serial.print("Time for key distribution (ms): ");
-        Serial.println(elapsed2/1000);
-        Serial.print("Sum (ms): ");
-        Serial.println((elapsed1+elapsed2)/1000);
-        Serial.print("Time for sending all KDMSGs (ms): ");
-        Serial.println(elapsed0/1000 - ArtDELAY*M);
-        Serial.println();
+        if(flag==1)
+        {
+         Serial.println();
+         Serial.println("Confirmation Fail");
+        }
+        else
+        {
+          endt2 = micros();
+          finished = true;
+          Serial.println();
+          Serial.println("Confirmation Success");
+          elapsed1= endt1 - start1;
+          elapsed2= endt2 - start2;
+          
+          Serial.println();
+          Serial.print("Time for key generation (ms): ");
+          Serial.print(elapsed1/1000);
+          Serial.println();
+          Serial.print("Time for key distribution (ms): ");
+          Serial.println(elapsed2/1000);
+          Serial.print("Sum (ms): ");
+          Serial.println((elapsed1+elapsed2)/1000);
+          Serial.print("Time for sending all KDMSGs (ms): ");
+          Serial.println(elapsed0/1000);
+          Serial.println();
+        }
   
         for(int e=0;e<N;e++)
         {
           counter[e] = 0;
         }
         counterTT = 0;
-  		}
+      }
     }
   }
 }
+
+// END FILE
