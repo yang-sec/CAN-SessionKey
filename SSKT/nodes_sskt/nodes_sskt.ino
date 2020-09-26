@@ -2,7 +2,7 @@
 //Shanghao Shi
 //Protocol Implemention for ACSAC2020-Session key Distribution Make Practical for CAN and CAN-FD Message Authentication
 
-#include <SPI.h>
+//#include <SPI.h>
 #include "mcp_can.h"
 #include <SHA256.h>
 #include <GF256.h>
@@ -10,7 +10,7 @@
 /* PLEASE CHANGE TO SEE DIFFERENT SETUPS */  
 // Keep it the the same with the KS setup
 const int M=1; // Number of MSG IDs. Please fix M=1.
-const int N=2; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
+const int N=1; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
 // CHOOSE ONE AND COMMENT OUT THE OTHERS
 unsigned long EID= 
@@ -23,23 +23,23 @@ unsigned long EID=
 ;
 
 // CHOOSE ONE AND COMMENT OUT THE OTHERS
-uint8_t Pre_shared_key_x[16]=
+uint8_t Pre_shared_key_x[16]={
   0x63,0x4a,0xcc,0xa0,0xcc,0xd6,0xe,0xe0,0xad,0x70,0xd2,0xdb,0x9e,0xd2,0xa3,0x28  // ECU 0
 //  0x2c,0xeb,0x89,0x11,0x5e,0x74,0xe6,0xd8,0xf6,0x8d,0xe2,0x33,0xad,0xb7,0x7b,0x4f // ECU 1
-//  0x63,0x4a,0xcc,0xa0,0xcc,0xd6,0xe,0xe0,0xad,0x70,0xd2,0xdb,0x9e,0xd2,0xa3,0x28  // ECU 2
-//  0x2c,0xeb,0x89,0x11,0x5e,0x74,0xe6,0xd8,0xf6,0x8d,0xe2,0x33,0xad,0xb7,0x7b,0x4f // ECU 3
-//  0x63,0x4a,0xcc,0xa0,0xcc,0xd6,0xe,0xe0,0xad,0x70,0xd2,0xdb,0x9e,0xd2,0xa3,0x28  // ECU 4
-//  0x2c,0xeb,0x89,0x11,0x5e,0x74,0xe6,0xd8,0xf6,0x8d,0xe2,0x33,0xad,0xb7,0x7b,0x4f // ECU 5
+//  0x4f,0x9d,0xae,0xca,0xe3,0x15,0xad,0xf8,0x2d,0x73,0x39,0x83,0x29,0x99,0xcb,0x3c // ECU 2
+//  0xc1,0x3d,0x28,0xec,0x84,0xe6,0xb7,0x49,0x9e,0xd7,0xa9,0x7e,0xdd,0x4,0x8f,0xf6  // ECU 3
+//  0x5b,0x47,0x27,0xe8,0x3c,0xb,0xf1,0x36,0xee,0x93,0xb,0x35,0x76,0xed,0x6a,0x2    // ECU 4
+//  0x1b,0x28,0xde,0x9b,0xd6,0x9c,0xb4,0x6,0x77,0xf5,0x4f,0xb7,0xd4,0x15,0x78,0x76  // ECU 5
 };
 
 // CHOOSE ONE AND COMMENT OUT THE OTHERS
-uint8_t Pre_shared_key_y[16]=
+uint8_t Pre_shared_key_y[16]={
   0x33,0x69,0x92,0x70,0x1c,0x3a,0xad,0x5,0x75,0x5b,0x9b,0x64,0x3f,0x9b,0x72,0xbd  // ECU 0
 //  0xce,0xda,0x31,0x94,0x8e,0x39,0xdd,0x10,0x4a,0xe5,0xe4,0xfb,0xcd,0x2e,0x64,0x27 // ECU 1
-//  0x33,0x69,0x92,0x70,0x1c,0x3a,0xad,0x5,0x75,0x5b,0x9b,0x64,0x3f,0x9b,0x72,0xbd  // ECU 2
-//  0xce,0xda,0x31,0x94,0x8e,0x39,0xdd,0x10,0x4a,0xe5,0xe4,0xfb,0xcd,0x2e,0x64,0x27 // ECU 3
-//  0x33,0x69,0x92,0x70,0x1c,0x3a,0xad,0x5,0x75,0x5b,0x9b,0x64,0x3f,0x9b,0x72,0xbd  // ECU 4
-//  0xce,0xda,0x31,0x94,0x8e,0x39,0xdd,0x10,0x4a,0xe5,0xe4,0xfb,0xcd,0x2e,0x64,0x27 // ECU 5
+//  0x34,0xbb,0xf7,0x19,0x2b,0x85,0x28,0x90,0x53,0x7b,0x5f,0x6a,0x7e,0xbd,0xd6,0xfd // ECU 2
+//  0x96,0xd7,0xd0,0x92,0x7,0x42,0xe4,0xca,0x28,0xb6,0xac,0x59,0x60,0xab,0xa9,0xa6  // ECU 3
+//  0xe,0x0,0x23,0xd2,0x1c,0x1f,0x14,0xff,0x73,0xf0,0x95,0xab,0x52,0xae,0x3,0x8b    // ECU 4
+//  0x31,0xcb,0x5c,0xe9,0x7,0xc4,0x4a,0xca,0x58,0xbd,0xfa,0xa0,0x77,0x4d,0x47,0xfd  // ECU 5
 };
   
 //Set CS pin
@@ -48,16 +48,16 @@ MCP_CAN CAN(SPI_CS_PIN);
 SHA256 hash;
 
 
-uint8_t ListTT[5]={0xFC,0xF1,0xCD,0x07,0x13};
-uint8_t List[N-1];
+uint8_t auxX_All[6]={0xfc,0xf2,0xc3,0x07,0x13,0x48}; // Same aux x coordinate for every byte
+uint8_t auxX[N];
 
-uint8_t epoch[8]={0,0,0,0,0,0,0,0};
+uint8_t epoch[8]={0};
 uint8_t R[16];
 uint8_t Session_key[M][16];
-uint8_t Pre_computed_list[N][16];
+uint8_t LaCo[N+1][16]; // Lagrange Coefficients, to pre-compute
+
 
 int counter, pr_counter, kd_counter;
-    
 	
 void array_assignment(uint8_t *array_1, uint8_t *array_2, uint8_t array_len)
 {
@@ -68,33 +68,38 @@ void array_assignment(uint8_t *array_1, uint8_t *array_2, uint8_t array_len)
 }
 
 
-//Precompute process
-//This part is done during CAN bus setup process, computation overhead can be significantly reduced
-//Details can be found in the paper
+// Precompute Lagrange Coefficients
+// This part is done during CAN bus setup process, computation overhead can be significantly reduced
+// Details can be found in the paper
 void pre_compute()
 {
-  uint8_t New_list[N];
-  array_assignment(New_list, List, N-1);
-  for(int j=0;j<N;j++)
+//  Serial.println("Pre computed Lagrange Coefficients: ");
+  for(int b = 0;b < 16;b++)
   {
-    Serial.println("Pre_computed_list:");
-    for(int k=0;k<16;k++)
+    for(int i = 0;i < N;i++)
     {
-      New_list[N-1]=Pre_shared_key_x[k];
-      Pre_computed_list[j][k]=0;
-      for(int l=0;l<N;l++)
+//      uint8_t tmp=0;
+      LaCo[i][b] = 0;
+      for(int j = 0;j < N;j++)
       {
-        if(l != j)
+        if(j != i)
         {
-          Pre_computed_list[j][k]=((Pre_computed_list[j][k]+GF256_Log[New_list[l]])%0xff+GF256_Log[GF256_Inv[New_list[j]^New_list[l]]])%0xff;//delete 0x01
+          LaCo[i][b] = ((LaCo[i][b]+GF256_Log[auxX[j]])%0xff + GF256_Log[GF256_Inv[auxX[j]^auxX[i]]])%0xff;
+//          tmp = GF256_Exp[(GF256_Log[x_coordinate^points_x[j]]+GF256_Log[GF256_Inv[points_x[j]^points_x[i]]])%0xff];
         }
       }
-      Pre_computed_list[j][k]=GF256_Exp[Pre_computed_list[j][k]];
-      Serial.print(Pre_computed_list[j][k],HEX);
-      Serial.print("\t");
-    }  
-    Serial.println();    
-  }        
+      LaCo[i][b] = ((LaCo[i][b]+GF256_Log[Pre_shared_key_x[b]])%0xff + GF256_Log[GF256_Inv[Pre_shared_key_x[b]^auxX[i]]])%0xff;
+      LaCo[i][b] = GF256_Exp[LaCo[i][b]];
+    }
+
+    LaCo[N][b] = 0;
+//    uint8_t tmp=0;
+    for(int j = 0;j < N;j++)
+    {
+      LaCo[N][b] = ((LaCo[N][b]+GF256_Log[auxX[j]])%0xff + GF256_Log[GF256_Inv[auxX[j]^Pre_shared_key_x[b]]])%0xff;
+    }
+    LaCo[N][b] = GF256_Exp[LaCo[N][b]];
+  }         
 }
 
 
@@ -110,49 +115,79 @@ uint8_t check_pr_hmac(unsigned long ID, uint8_t R[16], uint8_t hmac[8])
   {
     if(tmp_hmac[k]!=hmac[k])
     {
-      Serial.println("PR_MSG HMAC does not match");
+      Serial.println("PR_MSG HMAC unmatch");
       return 1;
-    } 
+    }
   }
   return 0;
 }
 
 
-uint8_t recover_session_key(
-  uint8_t Pre_computed_list[N][16], 
-  uint8_t Pre_shared_secret_y[16], 
-  uint8_t R[16], 
-  uint8_t points[N-1][16], 
-  unsigned long canID, 
-  uint8_t epoch[8],
-  uint8_t MAC[8],
-  uint8_t Session_key[16])
+uint8_t Largrange_interpolation(uint8_t points_x[N+1], uint8_t points_y[N+1], uint8_t x_coordinate)
 {
-  uint8_t New_MAC[8];
-  
-  for(int i=0;i<16;i++)
+  uint8_t y_coordinate=0;
+  for(int i=0;i<N+1;i++)
   {
-    // Interpolation with pre-computed Lagrange coeffs
-    Session_key[i]=0;
-    for(int j=0;j<N;j++)
+    uint8_t tmp=0;
+//    uint8_t tmp=1;
+    for(int j=0;j<N+1;j++)
     {
-      if(j!=(N-1))
+      if(j!=i)
       {
-        Session_key[i]=Session_key[i]^GF256_Exp[(GF256_Log[points[j][i]]+GF256_Log[Pre_computed_list[j][i]])%0xff];
-      }
-      else
-      {
-        Session_key[i]=Session_key[i]^GF256_Exp[(GF256_Log[Pre_shared_secret_y[i]^R[i]]+GF256_Log[Pre_computed_list[j][i]])%0xff];
+//        tmp^=GF256_Exp[(GF256_Log[x_coordinate^points_x[j]]+GF256_Log[GF256_Inv[points_x[j]^points_x[i]]])%0xff];
+//        tmp = ((tmp+GF256_Log[x_coordinate^points_x[j]])%0xff+GF256_Log[GF256_Inv[points_x[j]^points_x[i]]])%0xff;
+        tmp = tmp + GF256_Log[x_coordinate^points_x[j]] + GF256_Log[GF256_Inv[points_x[j]^points_x[i]]];
       }
     }
+//    y_coordinate ^= GF256_Exp[(GF256_Log[points_y[i]]+GF256_Log[tmp])%0xff];
+//    y_coordinate ^= GF256_Exp[(GF256_Log[points_y[i]]+tmp)%0xff];
+    y_coordinate ^= GF256_Exp[GF256_Log[points_y[i]] + tmp];
+  }
+  return y_coordinate;
+}
+
+
+uint8_t recover_session_key(unsigned long canId, uint8_t auxY[N][16], uint8_t MAC[8])
+{
+  uint8_t New_MAC[8];
+  unsigned long MID = canId - 0x10000000;
+
+  hash.reset();
+  hash.update(R, 16);
+  hash.update(&MID, sizeof(MID));
+  hash.finalize(R, 16); // R for MID m
+  
+  for(int b=0;b<16;b++)
+  {
+    /*
+    // Interpolation with pre-computed Lagrange coeffs
+    Session_key[MID-1][b]=0;
+    for(int i=0;i<N;i++)
+    {
+      Session_key[MID-1][b] ^= GF256_Exp[(GF256_Log[aux_points[i][b]]+GF256_Log[LaCo[i][b]])%0xff];
+    }
+    Session_key[MID-1][b] ^= GF256_Exp[(GF256_Log[Pre_shared_key_y[b]^R[b]]+GF256_Log[LaCo[N][b]])%0xff];
+    //*/
+//    Serial.print(auxY[0][b], HEX);
+//    Serial.print(" ");
+    
+    uint8_t points_x[N+1];
+    uint8_t points_y[N+1];
+    for(int i=0;i<N;i++)
+    {
+      points_x[i] = auxX[b];
+      points_y[i] = auxY[i][b];
+    }
+    points_x[N] = Pre_shared_key_x[b];
+    points_y[N] = Pre_shared_key_y[b]^R[b];
+    Session_key[MID-1][b] = Largrange_interpolation(points_x,points_y,0);
   }
 
   // Check MAC. MAC of KDMSG: hash(session key|mid|epoch)
-  hash.reset();
-  hash.update(Session_key, 16);
-  hash.update(&canID, sizeof(canID));
+  hash.resetHMAC(Session_key[MID-1], 16);
+  hash.update(&canId, sizeof(canId));
   hash.update(epoch, 8);
-  hash.finalize(New_MAC,8);
+  hash.finalizeHMAC(Session_key[MID-1], 16, New_MAC, 8);
   for(int b=0;b<8;b++)
   {
     if(New_MAC[b]!=MAC[b])
@@ -165,64 +200,36 @@ uint8_t recover_session_key(
 }
 
 // Send CO_MSG to KS
-void send_back_message(uint8_t flag)
+void send_back_message(unsigned long ID)
 {
   uint8_t new_hmac[8];
-  unsigned long ID = 0x200 + EID; // In binary: 010||EID
-  hash.resetHMAC(Pre_shared_key, 16);
+  hash.resetHMAC(Pre_shared_key_y, 16);
   hash.update(&ID, sizeof(ID));
   hash.update(epoch, 8);
       
-  if(flag==0)
+  for(int m=0;m<M;m++)
   {
-    for(int m=0;m<M;m++)
-    {
-      hash.update(Session_key[m], 16);
-    }
-    hash.finalizeHMAC(Pre_shared_key, 16, new_hmac, 8);
-
-//      Serial.print("------- send COMSG with ID ");
-//      Serial.print(ID,HEX);
-//      Serial.println(" -------");
-
-    CAN.sendMsgBuf(ID, 0, 8, epoch);
-//      Serial.print("Epoch:\t");
-//      for (int i = 0; i < 8; i++) { // print the data
-//            Serial.print(epoch[i],HEX);
-//            Serial.print("\t");
-//      }
-//      Serial.println();
-    
-    CAN.sendMsgBuf(ID, 0, 8, new_hmac);
-//      Serial.print("HMAC:\t");
-//      for (int i = 0; i < 8; i++) { // print the data
-//            Serial.print(new_hmac[i],HEX);
-//            Serial.print("\t");
-//      }
-//      Serial.println();
+    hash.update(Session_key[m], 16);
   }
-  else
-  { 
-    Serial.println("[KDMSG MAC does not check]");
-    hash.finalizeHMAC(Pre_shared_key, 16, new_hmac, 8);
-    CAN.sendMsgBuf(ID, 0, 8, epoch);
-    CAN.sendMsgBuf(ID, 0, 8, new_hmac);      
-  }
+  hash.finalizeHMAC(Pre_shared_key_y, 16, new_hmac, 8);
+  CAN.sendMsgBuf(ID, 0, 8, epoch);
+  CAN.sendMsgBuf(ID, 0, 8, new_hmac);
+
 }
 
 void display_session_key()
 {
   Serial.println();
-  Serial.println("------- get session key -------");
+//  Serial.println("------- get session key -------");
 
   for(int m=0;m<M;m++)
   {
     Serial.print("MSG 0x");
     Serial.print(m+1);
     Serial.print(":\t");
-    for(int k=0;k<16;k++)
+    for(int b=0;b<16;b++)
     {
-      Serial.print(Session_key[m][k],HEX);
+      Serial.print(Session_key[m][b],HEX);
       Serial.print(" ");
     }
     Serial.println();
@@ -234,49 +241,50 @@ void setup()
   Serial.begin(115200);
   while (CAN_OK != CAN.begin(CAN_500KBPS)) // init can bus
   {            
-      Serial.println("CAN BUS Shield init fail");
-      Serial.println("Init CAN BUS Shield again");
+//      Serial.println("CAN BUS Shield init fail");
+//      Serial.println("Init CAN BUS Shield again");
       delay(100);
   }
   
 	// Initilize Masks and Filters
 	// Different ECU nodes need different Masks and Filters initilization to receive different message
-  CAN.init_Mask(0, 1, 0x1fffffff);
-  CAN.init_Mask(1, 1, 0x1fffffff);
-  CAN.init_Filt(0, 0, 0x200+MID);   // For PR_MSG
-  CAN.init_Filt(1, 1, 0x00000001);  // For KD_MSG of MID 1
-  CAN.init_Filt(2, 1, 0x00000002);  // For KD_MSG of MID 2
-  Serial.println("CAN BUS Shield init ok!");
+  CAN.init_Mask(0, 1, 0xffffffff);
+  CAN.init_Mask(1, 1, 0xffffffff);
+  CAN.init_Filt(0, 1, EID);   // For PR_MSG
+  CAN.init_Filt(1, 1, 0x10000001);  // For KD_MSG of MID 1
+//  Serial.println("CAN BUS Shield init ok!");
   Serial.println();
 
   for(int n=0;n<N-1;n++)
   {
-    List[n] = ListTT[n];
+    auxX[n] = auxX_All[n];
   }
   epoch[7]=1;
   pre_compute();
+  pr_counter = 0;
+  kd_counter = 0;
   counter=0;  
 }
 
 
-uint8_t len;
-uint8_t buf[8];
-unsigned long canId;
-uint8_t tmp_epoch[8];
-uint8_t aux_points[N][16];
-uint8_t pr_hmac[8];
-uint8_t kd_hmac[8];
-uint8_t flag;
-unsigned long MID;
+uint8_t auxY[N][16];
 
 void loop()
 {
+//  static uint8_t aux_points[N][16];
+  uint8_t len;
+  uint8_t buf[8];
+  unsigned long canId;
+  uint8_t tmp_epoch[8];
+  uint8_t hmac[8];
+  uint8_t flag;
+  unsigned long MID;
+
     flag = 0;
     if (CAN_MSGAVAIL == CAN.checkReceive()) // check if data coming
     {
       CAN.readMsgBuf(&len, buf);    // read data
       canId = CAN.getCanId();
-//      Serial.println("-----------------------------");
 //      Serial.print("------- Get data from ID: 0x");
 //      Serial.println(canId, HEX);
 //      for (int i = 0; i < len; i++) // print the data
@@ -286,7 +294,7 @@ void loop()
 //      }
 //      Serial.println();
 
-    if(canID == EID) // PR_MSG
+    if(canId == EID) // PR_MSG
     {
       switch(pr_counter)
       {
@@ -294,8 +302,8 @@ void loop()
           array_assignment(tmp_epoch,buf,8);
           if(tmp_epoch[7]!=epoch[7])
           {
-            Serial.println("PR_MSG epoch outdated.");
-            pr_counter--;
+            Serial.println("PR_MSG outdated.");
+            return;
           }
           break;
         case 1:
@@ -305,13 +313,13 @@ void loop()
           array_assignment(&R[8], buf, 8);
           break;
         case 3:
-          array_assignment(pr_hmac, buf, 8);
-          flag = check_pr_hmac(canId, R[0], pr_hmac);
+          array_assignment(hmac, buf, 8);
+          flag = check_pr_hmac(canId, R, hmac);
           break;
       }
       pr_counter++;
     }
-    else if(canID >= 0x10000001 && canID <= 0x10000fff) // KD_MSG
+    else if(canId >= 0x10000001 && canId <= 0x10000fff) // KD_MSG
     {
       MID = canId - 0x10000000;
       if(kd_counter==0)
@@ -319,28 +327,30 @@ void loop()
         array_assignment(tmp_epoch,buf,8);
         if(tmp_epoch[7]!=epoch[7])
         {
-          Serial.println("KD_MSG epoch outdated.");
-          kd_counter--;
+          Serial.println("KD_MSG outdated.");
+          return;
         }
+        kd_counter++;
       }
       else if(kd_counter >= 1 && kd_counter <= 2*N) // N aux points
       {
         switch(kd_counter%2)
         {
           case 1:
-            array_assignment(aux_points[kd_counter-1], buf, 8);
+            array_assignment(&auxY[(kd_counter-1)/2][0], buf, 8);
             break;
-          case 2:
-            array_assignment(&aux_points[kd_counter-1][8], buf, 8);
+          case 0:
+            array_assignment(&auxY[(kd_counter-1)/2][8], buf, 8);
             break;
         }
+        kd_counter++;
       }
       else if(kd_counter == 2*N+1)
       {
-        array_assignment(kd_hmac, buf, 8);
-        flag = recover_session_key(Pre_computed_list[0], Pre_shared_key_y, R[0], points, canId, epoch, MAC, Session_key[0]);
+        array_assignment(hmac, buf, 8);
+        flag = recover_session_key(canId, auxY, hmac);
+        kd_counter = 0;
       }
-      kd_counter++;
     }
     else
     {
@@ -348,15 +358,15 @@ void loop()
       return;
     }
 
-    counter++;
 //    Serial.print("counter = ");
 //    Serial.println(counter);
+    counter++;
     
-    if(counter==4+2+2*N)
+    if(counter == 4+(2+2*N)*M)
     {
       for(int repeat=0;repeat<5;repeat++)
       {	
-  			send_message_back(flag);
+  			send_back_message(0x200 + EID);
 //  			delay(3);
       }
       kd_counter = 0;
