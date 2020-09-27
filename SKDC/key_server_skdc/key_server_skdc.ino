@@ -18,9 +18,9 @@ SHA256 hash;
 
 /* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
 const int M=1; // Number of MSG IDs. Please fix M = 1.
-const int N=6; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
+const int N=1; // Number of normal ECUs with the max of 6. {2,3,4,5,6} are used in the paper. 
 
-//const int ArtDELAY = 0; // Artifitial delay
+const int ArtDELAY1 = 10, ArtDELAY2 = 50; // Artifitial delay
 
 uint8_t Pre_shared_key[6][16]={ // We simulate up to 6 ECUs with 2 Uno boards
   {0x63,0x4a,0xcc,0xa0,0xcc,0xd6,0xe,0xe0,0xad,0x70,0xd2,0xdb,0x9e,0xd2,0xa3,0x28},  // ECU 1 at Uno 1
@@ -59,14 +59,6 @@ void Session_key_generation()
 {
 	RNG.begin("Session_key_generation");
 	RNG.rand(&Session_key[0][0], M*16);
-//	for(int m=0;m<M;m++){
-//    Serial.println("Session key generated:");
-//    for(int k=0;k<16;k++){
-//      Serial.print(Session_key[m][k], HEX);
-//      Serial.print("\t");
-//    }
-//    Serial.println();
-//	}
 }
 
 // Send out KDMSGs per ECU per MSG
@@ -191,16 +183,17 @@ void setup()
     }
 
     start2 = micros();
+    delay(ArtDELAY2);
+    start0 = micros();
     for(int m=0;m<M;m++)
     {
-      start0 = micros();
-      for(int e=0;e<N;e++)
+      for(int n=0;n<N;n++)
       {    
-          send_kdmsg(e, m);
+          send_kdmsg(n, m);
       }
-//      delay(10);
+//      delay(ArtDELAY1);
     }
-    elapsed0 += micros() - start2;   
+    elapsed0 = micros() - start0;   
 }
 
 
