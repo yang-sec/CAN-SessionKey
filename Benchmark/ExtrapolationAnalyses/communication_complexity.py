@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-N = [2,10]  # Number of normal ECUs
+N = [5,10]  # Number of normal ECUs
 M = [5,10,15,20,25,30,35,40,45,50]  # Number of message IDs (we assume all ECUs subscribe to all message IDs)
 
 # Protocol message counts, as in Table 2. We assume CAN-FD frame is transmitted at 5 times of the CAN bit rate
@@ -64,18 +64,19 @@ plt.plot(SSKT_Total_FD[0], color='blue', linestyle='-.')
 plt.plot(SSKT_Total_FD[1], color='blue', linestyle='dotted')
 
 plt.legend([
-	'SKDC CAN, $N=2$', 'SKDC CAN, $N=10$',
-	'SKDC CAN-FD, $N=2$', 'SKDC CAN-FD, $N=10$',
-	'SSKT CAN, $N=2$', 'SSKT CAN, $N=10$',
-	'SSKT CAN-FD, $N=2$', 'SSKT CAN-FD, $N=10$'], fontsize='12')
+	'SKDC CAN, $N=5$', 'SKDC CAN, $N=10$',
+	'SKDC CAN-FD, $N=5$', 'SKDC CAN-FD, $N=10$',
+	'SSKT CAN, $N=5$', 'SSKT CAN, $N=10$',
+	'SSKT CAN-FD, $N=5$', 'SSKT CAN-FD, $N=10$'], fontsize='13')
 
 print('SKDC_Total_FD[1]:', SKDC_Total_FD[1])
 print('SSKT_Total_FD[1]:', SSKT_Total_FD[1])
 
 
-plt.xlabel('$M$ (Number of Message IDs)', fontsize='14')
-plt.ylabel('Communication Overhead (ms)', fontsize='14')
+plt.xlabel('$M$ (Number of Message IDs)', fontsize='15')
+plt.ylabel('Communication Overhead (ms)', fontsize='15')
 plt.ylim([0,540])
-plt.xticks(range(len(M)),['5','10','15','20','25','30','35','40','45','50'], fontsize='12')
+plt.xticks(range(len(M)),['5','10','15','20','25','30','35','40','45','50'], fontsize='13')
+plt.yticks(fontsize='13')
 plt.grid()
 plt.show()
