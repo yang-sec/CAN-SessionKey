@@ -10,10 +10,10 @@
 
 
 /* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
-const int M=5; // Number of MSG IDs.
+const int M=1; // Number of MSG IDs.
 const int N=6; // Number of normal ECUs with the max of 6. 
 
-const int KdDELAY_Micro = 7000; // Artifitial delay 
+const int KdDELAY_Micro = 6800; // Artifitial delay 
 
 uint8_t Pre_shared_key[6][16]={ // We simulate up to 6 ECUs with 2 Uno boards
   {0x63,0x4a,0xcc,0xa0,0xcc,0xd6,0xe,0xe0,0xad,0x70,0xd2,0xdb,0x9e,0xd2,0xa3,0x28},  // ECU 1

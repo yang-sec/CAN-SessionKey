@@ -4,23 +4,19 @@
 
 #include <mcp_can.h>
 #include <SPI.h>
-#include <SHA256.h>
+//#include <SHA256.h>
+#include <AES.h>
 #include <BLAKE2s.h>
 #include <GF256.h>
 #include <RNG.h>
 #include <Crypto.h>
 
-BLAKE2s hash;
-
-//Set CS pin
-const int SPI_CS_PIN = 9;
-MCP_CAN CAN(SPI_CS_PIN);
 
 /* PLEASE CHANGE TO SEE DIFFERENT SETUPS */
-const int M=1; // Number of MSG IDs. Please fix M=1.
-const int N=6; // Number of normal ECUs with the max of 5. {1,2,3,4,5} are used in the paper. 
+const int M=6; // Number of MSG IDs. Please fix M=1.
+const int N=4; // Number of normal ECUs with the max of 5. {1,2,3,4,5} are used in the paper. 
 
-const int PrDELAY_Micro = 6000, KdDELAY_Micro = 10000, KdOFFSET_Micro = 200; // Artifitial delay  
+const int PrDELAY_Micro = 5700, KdDELAY_Micro = 5500, KdOFFSET_Micro = 0; // Artifitial delay  
 
 
 uint8_t Pre_shared_key_x[6][16]={
@@ -29,7 +25,7 @@ uint8_t Pre_shared_key_x[6][16]={
   {0x4f,0x9d,0xae,0xca,0xe3,0x15,0xad,0xf8,0x2d,0x73,0x39,0x83,0x29,0x99,0xcb,0x3c}, // ECU 2
   {0xc1,0x3d,0x28,0xec,0x84,0xe6,0xb7,0x49,0x9e,0xd7,0xa9,0x7e,0xdd,0x4,0x8f,0xf6},  // ECU 3
   {0x5b,0x47,0x27,0xe8,0x3c,0xb,0xf1,0x36,0xee,0x93,0xb,0x35,0x76,0xed,0x6a,0x2},    // ECU 4
-  {0x57,0x03,0x42,0xbc,0x18,0xfb,0xb1,0xf0,0x62,0x1d,0x50,0x68,0x2a,0xc,0x4a,0x51}    // ECU 5
+  {0x57,0x03,0x42,0xbc,0x18,0xfb,0xb1,0xf0,0x62,0x1d,0x50,0x68,0x2a,0xc,0x4a,0x51}   // ECU 5
 };
 uint8_t Pre_shared_key_y[6][16]={
   {0x33,0x69,0x92,0x70,0x1c,0x3a,0xad,0x5,0x75,0x5b,0x9b,0x64,0x3f,0x9b,0x72,0xbd},  // ECU 0
@@ -40,6 +36,11 @@ uint8_t Pre_shared_key_y[6][16]={
   {0x7d,0x5d,0x61,0xca,0x93,0x89,0xeb,0xa4,0x2d,0xb8,0xd,0xbc,0x8b,0x83,0x41,0xa6}   // ECU 5
 };
   
+//Set CS pin
+const int SPI_CS_PIN = 9;
+MCP_CAN CAN(SPI_CS_PIN);
+BLAKE2s hash;
+AESTiny128 AES128;
   
 uint8_t auxX_All[6]={0xfc,0xf2,0xc3,0x8,0x13,0x75}; // Same aux x coordinate for every byte
 
@@ -88,7 +89,6 @@ void send_prmsg(uint8_t n)
   unsigned long ID = EID[n]*0x100000;
 
   hash.reset(Pre_shared_key_x[n], 16, 8); // BLAKE2s keyed mode
-//  hash.update(Pre_shared_key_x[n], 16);
   hash.update(&ID, sizeof(ID));
   hash.update(epoch, 8);
   hash.update(&R[n][0], 16);
@@ -146,11 +146,15 @@ void send_kdmsg(int m)
 //      Serial.print(" ");
 //    }
 //    Serial.println();
-    hash.reset();
-    hash.update(&Pre_shared_key_y[n][0], 16);
-    hash.update(&R[n][0], 16);
-    hash.update(&MID, sizeof(MID));
-    hash.finalize(&R[n][0], 16);
+
+//    hash.reset();
+//    hash.update(&Pre_shared_key_y[n][0], 16);
+//    hash.update(&R[n][0], 16);
+//    hash.update(&MID, sizeof(MID));
+//    hash.finalize(&R[n][0], 16);
+    AES128.setKey(&Pre_shared_key_y[n][0], 16);
+    AES128.encryptBlock(&R[n][0], &R[n][0]);
+    
 //    for(int b=0;b<8;b++)
 //    {
 //      Serial.print(R[n][b],HEX);

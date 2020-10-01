@@ -7,7 +7,7 @@
 //#include <SHA256.h>
 #include <BLAKE2s.h>
 
-const int M=5; // Number of MSG IDs.
+const int M=1; // Number of MSG IDs.
 
 // CHOOSE ONE AND COMMENT OUT THE OTHERS
 unsigned long EID= 

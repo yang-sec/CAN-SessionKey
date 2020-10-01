@@ -1,5 +1,5 @@
 # For ACSAC'20 Paper: "Session Key Distribution Made Practical for CAN and CAN-FD Message Authentication"
-# Plotting the extrapolated total computation workload (Figure. 7)
+# Plotting the extrapolated total computation workload
 #
 # Yang Xiao <xiaoy@vt.edu>
 
@@ -11,16 +11,14 @@ N = [2,5,10]  # Number of normal ECUs
 M = [5,10,15,20,25,30,35,40,45,50]  # Number of message IDs (we assume all ECUs subscribe to all message IDs)
 
 # Runtime results (ms/byte) obtained from the three Arduino benchmark experiments (also shown in Table 2)
-AES_DE = 0.06742  # AES128 decryption per byte
-AES_EN = 0.035410  # AES128 encryption per byte
-AES_SETKEY = 0.14365
-# SHA3 = 0.0611 # SHA3_256 per byte
-# SHA3_FINALIZE = 8.17934 # SHA3_256 finalization
-# SHA = 0.04385 # SHA256 per byte
-# SHA_FINALIZE = 2.84104 # SHA256 finalization
-BLAKE2s = 0.05461 # BLAKE2s per byte
-BLAKE2s_FIN = 3.50825 # BLAKE2s finalization
-BLAKE2s_SETKEY = 3.51294 # BLAKE2s key setup in keyed mode
+AES_SMALL_DE = 0.07366
+AES_SMALL_EN = 0.04240 
+AES_SMALL_SETKEY = 0.13164 # One time
+AES_TINY128_EN = 0.04239
+AES_TINY128_SETKEY = 0.00998
+BLAKE2s = 0.05461 
+BLAKE2s_FIN = 3.50825 # One time
+BLAKE2s_SETKEY = 3.51294 # One time, keyed mode
 F = [0.01040,0.01986,0.03356] # Recovering polynomial secret of degree 2, 6, 10 per byte
 
 
@@ -32,12 +30,13 @@ for i in range(len(N)):
 	for j in range(len(M)):
 		m = M[j]
 
-		SKDC_Total[i,j] += (AES_DE*16 + AES_SETKEY) * m  # AES-decryption in m KD_MSGs
+		SKDC_Total[i,j] += (AES_SMALL_DE*16 + AES_SMALL_SETKEY) * m  # AES-decryption in m KD_MSGs
 		SKDC_Total[i,j] += (BLAKE2s*(16+4+8+16) + BLAKE2s_SETKEY + BLAKE2s_FIN) * m  # MAC in m KD_MSGs
 		SKDC_Total[i,j] += BLAKE2s*(16+4+8+16*m) + BLAKE2s_SETKEY + BLAKE2s_FIN  # MAC in 1 CO_MSG MAC (session keys digested)
 		
 		SSKT_Total[i,j] += BLAKE2s*(16+4+8+16) + BLAKE2s_SETKEY + BLAKE2s_FIN  # MAC in 1 PR_MSG MAC
-		SSKT_Total[i,j] += (BLAKE2s*(16+16+4) + BLAKE2s_FIN) * m  # Compute m Rs
+		# SSKT_Total[i,j] += (BLAKE2s*(16+16+4) + BLAKE2s_FIN) * m  # Compute m Rs
+		SSKT_Total[i,j] += (AES_TINY128_EN*16 + AES_TINY128_SETKEY) * m  # Compute m Rs
 		SSKT_Total[i,j] += (BLAKE2s*(16+4+8) + BLAKE2s_SETKEY + BLAKE2s_FIN) * m  # MAC in m KD_MSGs
 		SSKT_Total[i,j] += BLAKE2s*(16+4+8+16*m) + BLAKE2s_SETKEY + BLAKE2s_FIN  # MAC in 1 CO_MSG MAC (session keys digested)
 		SSKT_Total[i,j] += F[i]*16*m  # 16*m bytes of f(0) recovery

@@ -1,5 +1,5 @@
 # For ACSAC'20 Paper: "Session Key Distribution Made Practical for CAN and CAN-FD Message Authentication"
-# Plotting the extrapolated total communication overhead (Figure. 8)
+# Plotting the extrapolated total communication overhead
 #
 # Yang Xiao <xiaoy@vt.edu>
 
