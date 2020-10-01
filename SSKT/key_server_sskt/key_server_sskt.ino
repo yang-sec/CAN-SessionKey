@@ -88,7 +88,7 @@ void send_prmsg(uint8_t n)
   uint8_t hmac[8];
   unsigned long ID = EID[n]*0x100000;
 
-  hash.reset(Pre_shared_key_x[n], 16, 8); // BLAKE2s keyed mode
+  hash.reset(Pre_shared_key_y[n], 16, 8); // BLAKE2s keyed mode
   hash.update(&ID, sizeof(ID));
   hash.update(epoch, 8);
   hash.update(&R[n][0], 16);
@@ -98,32 +98,6 @@ void send_prmsg(uint8_t n)
   CAN.sendMsgBuf(ID+1, 1, 8, &R[n][0], true);
   CAN.sendMsgBuf(ID+2, 1, 8, &R[n][8], true);
   CAN.sendMsgBuf(ID+3, 1, 8, hmac, true);
-  
-//  Serial.println(ID, HEX);
-//  for(int b=0;b<8;b++)
-//  { 
-//    Serial.print(epoch[b], HEX);
-//    Serial.print(" ");
-//  }
-//  Serial.println();
-//  for(int b=0;b<8;b++)
-//  { 
-//    Serial.print(R[n][b], HEX);
-//    Serial.print(" ");
-//  }
-//  Serial.println();
-//  for(int b=0;b<8;b++)
-//  { 
-//    Serial.print(R[n][b+8], HEX);
-//    Serial.print(" ");
-//  }
-//  Serial.println();
-//  for(int b=0;b<8;b++)
-//  { 
-//    Serial.print(hmac[b], HEX);
-//    Serial.print(" ");
-//  }
-//  Serial.println();
 }
 
 void send_kdmsg(int m)
@@ -139,28 +113,8 @@ void send_kdmsg(int m)
   // Compute the Rms for this MID
   for(int n=0;n<N;n++)
   {
-//    Serial.println();
-//    for(int b=0;b<8;b++)
-//    {
-//      Serial.print(R[n][b],HEX);
-//      Serial.print(" ");
-//    }
-//    Serial.println();
-
-//    hash.reset();
-//    hash.update(&Pre_shared_key_y[n][0], 16);
-//    hash.update(&R[n][0], 16);
-//    hash.update(&MID, sizeof(MID));
-//    hash.finalize(&R[n][0], 16);
     AES128.setKey(&Pre_shared_key_y[n][0], 16);
     AES128.encryptBlock(&R[n][0], &R[n][0]);
-    
-//    for(int b=0;b<8;b++)
-//    {
-//      Serial.print(R[n][b],HEX);
-//      Serial.print(" ");
-//    }
-//    Serial.println();
   }
   // Compute the aux y points
   for(int b=0;b<16;b++)
@@ -219,7 +173,6 @@ uint8_t check_message_digest(unsigned long ID, uint8_t MAC[8], int e)
   uint8_t tmp_MAC[8];
   uint8_t tmp_flag = 0;
   hash.reset(Pre_shared_key_y[e], 16, 8); // BLAKE2s keyed mode
-//  hash.update(Pre_shared_key_y[e], 16);
   hash.update(&ID, sizeof(ID));
   hash.update(epoch, 8);
   for(int m=0;m<M;m++)

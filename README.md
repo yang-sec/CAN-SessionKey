@@ -1,3 +1,5 @@
+<em>Dear readers: we are currently sanitizing the code for better readability. Please revisit in two weeks. Thanks!</em>
+
 # CAN-SessionKey
 This repo includes the hardware specs, code, and documentation for evaluating SKDC and SSKT, two session key distribution protocols for CAN/CAN-FD bus. Background information and detailed protocol workflow can be found in our ACSAC'20 (Dec 7-11, 2020) paper <em>Session Key Distribution Made Practical for CAN and CAN-FD Message Authentication.</em>
 
@@ -26,12 +28,10 @@ Library installation is as simple as placing the specified folder under your Ard
 
 ## Part 1: Benchmark Evaluation
 Performance of single cryptographic operations in the protocols including encryption, decryption, hash, and Lagrange polynomial recovery are evaluated in this part. <strong>The experiment is conducted on one [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board.</strong> 
-- AES encrytion, AES decryption and SHA256 calculation can be evaluated with the examples provided by Arduino Cryptography Library. Simply run Benchmark/testAES/<strong>testAES.ino</strong> and Benchmark/testSHA256/<strong>testSHA256.ino</strong> to see the result. 
+- AES encrytion/decryption and BLAKE2 hash calculation can be evaluated with the examples provided by [Arduino Cryptography Library](https://github.com/rweather/arduinolibs/tree/master/libraries/Crypto), which are replicated in this repository. Simply run Benchmark/TestAESSmall/<strong>TestAESSmall.ino</strong>, Benchmark/TestAESTiny/<strong>TestAESTiny.ino</strong> and Benchmark/TestBLAKE2s/<strong>TestBLAKE2s.ino</strong> to see the result. 
 - For evaluating the polynomial recovery mechanism used in SSKT (Eq. (1) in the paper), run Benchmark/testPolynomial/<strong>testPolynomial.ino</strong> to see the result.
 
-The above results correspond to Table 1 in the paper. 
-
-Moreover, the Benchmark/ExtrapolationAnalyses folder contains two python programs for extrapolating the total communication and computation costs of the protocols. Python packages <em>numpy</em> and <em>matplotlib</em> are needed. The results correspond to Figure 7 and 8 in the paper.
+Moreover, the Benchmark/ExtrapolationAnalyses folder contains python programs for extrapolating the total communication and computation costs of the protocols. Python packages <em>numpy</em> and <em>matplotlib</em> are needed.
 
 ## Part 2: Prototype Implementation and Evaluation
 
@@ -45,17 +45,17 @@ For both protocols, we use [Arduino Due A000062 borad](https://store.arduino.cc/
      width="600"
      style="float: left; margin-right: 10px" />
 
-For the basic CAN bus connection, readers can take the [Seeed Studio CAN BUS Shields Tutorial](https://wiki.seeedstudio.com/CAN-BUS_Shield_V2.0/) as basic guidance. <strong>The figure above shows our hardware simulation experiment setup.</strong> The only difference between the tutorial hardware connection and our setup is that the tutorial connection contains only one master node and one slave node while ours contain one master (KS) and two slave nodes (ECUs). So we use an additional breadborad to interconnect the CAN_H and CAN_L jump wires from master and slave nodes. Also, two 120-Ohm terminal resistors are inserted between CAN_H jump wires and CAN_L jump wires in order to comply with CAN bus standard.
+For the basic CAN bus connection, readers can take the [Seeed Studio CAN BUS Shields Tutorial](https://wiki.seeedstudio.com/CAN-BUS_Shield_V2.0/) as basic guidance. <strong>The figure above shows our hardware simulation experiment setup.</strong> The only difference between the tutorial hardware connection and our setup is that the tutorial connection contains only one master node and one slave node while ours contains one master (KS) and multiple slave nodes (ECUs). So we use an additional breadborad to interconnect the CAN_H and CAN_L jump wires from master and slave nodes. Also, two 120-Ohm terminal resistors are inserted between CAN_H jump wires and CAN_L jump wires in order to comply with CAN bus standard.
 
 ### Evaluation ###
 Experiment on the SKDC protype
 - Open 2 Arduino IDE instances for the connected Due and Uno boards. Make sure the COM and Board configuration are correct (under "tool" bar). Then:
      - IDE 1: Upload /SKDC/key_server_skdc/<strong>key_server_skdc.ino</strong> to the Arduino Due. Open Serial Monitor.
-     - IDE 2: Upload /SKDC/nodes_skdc/<strong>nodes_skdc.ino</strong> to Arduino Uno boards one by one, with a corresponding ECU selection and the same M value. Open Serial Monitor.
+     - IDE 2: Upload /SKDC/nodes_skdc/<strong>nodes_skdc.ino</strong> to the N Arduino Uno boards one by one, with corresponding ECU selection and the same M value. Open Serial Monitor.
 - Press "reset" button on the Arduino Due board to start running the protocol for one session.
 - Check the result at the Serial Monitors.
 Try different <em>N</em> (from {2,3,4,5,6}, the number of simulated normal ECUs). Make sure the M value is the same across all uploaded programs.
 
 Experiment on the SSKT protype
 - Following the same procedure but with the SSKT files.
-- Additionally, make sure the N value is also the same across all uploaded programs.
+- Additionally, make sure the N value is also the same across all uploaded key_server_sskt and nodes_sskt programs.

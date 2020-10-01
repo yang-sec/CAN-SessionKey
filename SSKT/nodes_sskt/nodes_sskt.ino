@@ -105,7 +105,7 @@ uint8_t check_pr_hmac(unsigned long ID, uint8_t epoch[8], uint8_t R[16], uint8_t
 {
   uint8_t tmp_hmac[8];
   
-  hash.reset(Pre_shared_key_x, 16, 8);
+  hash.reset(Pre_shared_key_y, 16, 8);
   hash.update(&ID, sizeof(ID));
   hash.update(epoch, 8);
   hash.update(R, 16);
@@ -127,12 +127,8 @@ uint8_t recover_session_key(unsigned long canId, uint8_t epoch[8], uint8_t auxY[
   uint8_t New_MAC[8];
   int tmp;
   unsigned long MID = (m + 1)*0x100;
-  
-//  hash.reset();
-//  hash.update(&Pre_shared_key_y[0], 16);
-//  hash.update(R, 16);
-//  hash.update(&MID, sizeof(MID));
-//  hash.finalize(R, 16);
+
+  // Refresh R
   AES128.setKey(&Pre_shared_key_y[0], 16);
   AES128.encryptBlock(R, R);
     
@@ -143,11 +139,9 @@ uint8_t recover_session_key(unsigned long canId, uint8_t epoch[8], uint8_t auxY[
     Session_key[m][b]=0;
     for(uint8_t i=0;i<N;i++)
     {
-//      Session_key[m][b] ^= (auxY[i][b]!=0x0)? GF256_Exp[(GF256_Log[auxY[i][b]]+GF256_Log[LaCo[i][b]])%0xff] : 0x0;
       tmp = GF256_Log[auxY[i][b]]+GF256_Log[LaCo[i][b]];
       Session_key[m][b] ^= (auxY[i][b]!=0x0)? GF256_Exp[(tmp<=0xff)?tmp:(tmp-0xff)] : 0x0;
     }
-//    Session_key[m][b] ^= (Pre_shared_key_y[b]!=Rm[m][b])? GF256_Exp[(GF256_Log[Pre_shared_key_y[b]^Rm[m][b]]+GF256_Log[LaCo[N][b]])%0xff] : 0x0;
     tmp = GF256_Log[Pre_shared_key_y[b]^R[b]]+GF256_Log[LaCo[N][b]];
     Session_key[m][b] ^= (Pre_shared_key_y[b]!=R[b])? GF256_Exp[(tmp<=0xff)?tmp:(tmp-0xff)] : 0x0;
   }
@@ -173,7 +167,6 @@ void send_back_message(unsigned long ID, uint8_t epoch[8])
 {
   uint8_t new_hmac[8];
   hash.reset(Pre_shared_key_y, 16, 8);
-//  hash.update(Pre_shared_key_y, 16);
   hash.update(&ID, sizeof(ID));
   hash.update(epoch, 8); 
   for(int m=0;m<M;m++)
