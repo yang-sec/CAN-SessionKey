@@ -45,23 +45,17 @@ For both protocols, we use [Arduino Due A000062 borad](https://store.arduino.cc/
      width="600"
      style="float: left; margin-right: 10px" />
 
-For the basic CAN bus connection, readers can take the [Seeed Studio CAN BUS Shields Tutorial](https://wiki.seeedstudio.com/CAN-BUS_Shield_V2.0/) as basic guidance. <strong>The figure above shows our hardware simulation experiment setup.</strong> The only difference between the tutorial hardware connection and our setup is that the tutorial connection contains only one master node and one slave node while ours contain one master (KS) and two slave nodes (ECUs). So we use an additional breadborad to interconnect the CAN_H and CAN_L jump wires from master and slave nodes. Also, two 120-Ohm terminal resistors are inserted between CAN_H jump wires and CAN_L jump wires in order to comply with CAN bus standard. We configure that each slave node can simulate up to 3 ECUs, therefore we can test <em>N</em>={2,3,4,5,6}.
+For the basic CAN bus connection, readers can take the [Seeed Studio CAN BUS Shields Tutorial](https://wiki.seeedstudio.com/CAN-BUS_Shield_V2.0/) as basic guidance. <strong>The figure above shows our hardware simulation experiment setup.</strong> The only difference between the tutorial hardware connection and our setup is that the tutorial connection contains only one master node and one slave node while ours contain one master (KS) and two slave nodes (ECUs). So we use an additional breadborad to interconnect the CAN_H and CAN_L jump wires from master and slave nodes. Also, two 120-Ohm terminal resistors are inserted between CAN_H jump wires and CAN_L jump wires in order to comply with CAN bus standard.
 
 ### Evaluation ###
 Experiment on the SKDC protype
-- Open 3 Arduino IDE instances for the connected Due and Uno boards. Make sure the COM and Board configuration are correct (under "tool" bar). Then:
+- Open 2 Arduino IDE instances for the connected Due and Uno boards. Make sure the COM and Board configuration are correct (under "tool" bar). Then:
      - IDE 1: Upload /SKDC/key_server_skdc/<strong>key_server_skdc.ino</strong> to the Arduino Due. Open Serial Monitor.
-     - IDE 2: Upload /SKDC/nodes_skdc_1/<strong>nodes_skdc_1.ino</strong> to Arduino Uno 1. Open Serial Monitor.
-     - IDE 3: Upload /SKDC/nodes_skdc_2/<strong>nodes_skdc_2.ino</strong> to Arduino Uno 2. Open Serial Monitor.
-- Press "reset" button on the Arduino Due board to start running the protocol for distributuib one message session key.
+     - IDE 2: Upload /SKDC/nodes_skdc/<strong>nodes_skdc.ino</strong> to Arduino Uno boards one by one, with a corresponding ECU selection and the same M value. Open Serial Monitor.
+- Press "reset" button on the Arduino Due board to start running the protocol for one session.
 - Check the result at the Serial Monitors.
-Try different <em>N</em> (from {2,3,4,5,6}, the number of simulated normal ECUs). Please follow the N options used in following Table:
-
-| N in key_server.ino  | 2 | 3 | 4 | 5 | 6 |
-| --- | --- |--- | --- | --- | --- | 
-| N in node_skdc_1.ino | 1 | 2 | 2 | 3 | 3 |
-| N in node_skdc_2.ino | 1 | 1 | 2 | 2 | 3 |
+Try different <em>N</em> (from {2,3,4,5,6}, the number of simulated normal ECUs). Make sure the M value is the same across all uploaded programs.
 
 Experiment on the SSKT protype
 - Following the same procedure but with the SSKT files.
-- Current N=2 in key_server.ino can work perfectly.
+- Additionally, make sure the N value is also the same across all uploaded programs.
