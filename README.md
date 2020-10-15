@@ -59,4 +59,4 @@ Performance of single cryptographic operations in the protocols including encryp
 - AES encrytion/decryption and BLAKE2 hash calculation can be evaluated with the examples provided by [Arduino Cryptography Library](https://github.com/rweather/arduinolibs/tree/master/libraries/Crypto), which are replicated in this repository. Simply run Benchmark/TestAESSmall/<strong>TestAESSmall.ino</strong>, Benchmark/TestAESTiny/<strong>TestAESTiny.ino</strong> and Benchmark/TestBLAKE2s/<strong>TestBLAKE2s.ino</strong> to see the result. 
 - For evaluating the polynomial recovery mechanism used in SSKT (Eq. (1) in the paper), run Benchmark/testPolynomial/<strong>testPolynomial.ino</strong> to see the result.
 
-The Benchmark/ExtrapolationAnalyses folder contains python programs for extrapolating the total communication and computation costs of the protocols. Python packages <em>numpy</em> and <em>matplotlib</em> are needed.
+The Benchmark/ExtrapolationAnalyses folder contains python programs for extrapolating the total communication and computation costs of the protocols at large scale. Python packages <em>numpy</em> and <em>matplotlib</em> are needed.
