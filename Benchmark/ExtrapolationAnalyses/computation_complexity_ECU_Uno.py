@@ -19,7 +19,7 @@ AES_TINY128_SETKEY = 0.00998
 BLAKE2s = 0.05461 
 BLAKE2s_FIN = 3.50825 # One time
 BLAKE2s_SETKEY = 3.51294 # One time, keyed mode
-F = [0.01040,0.01986,0.03356] # Recovering polynomial secret of degree 2, 6, 10 per byte
+F = [0.01040,0.01986,0.03356] # Recovering polynomial secret of degree 2, 5, 10 per byte
 
 
 SKDC_Total = np.zeros((len(N),len(M)))

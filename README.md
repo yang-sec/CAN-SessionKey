@@ -5,8 +5,8 @@ This repo includes the hardware specs, code, and documentation for evaluating SK
 
 ## Introduction
 The code consists of two independent parts: 
-1. Benchmark evaluation programs for indivudual crypto operations and extrapolation analyses (for Section 6.1, 6.2 of the paper).
-2. A prototype implementation of SKDC and SSKT, along with hardware specification and evaluation program (for Section 6.3 of the paper).
+1. A prototype implementation of SKDC and SSKT, along with hardware specification and evaluation program (for Section 7.1 of the paper).
+2. Benchmark evaluation programs for indivudual crypto operations and extrapolation analyses (for Section 7.2 of the paper).
 
 ## Preliminaries ##
 
@@ -26,14 +26,8 @@ We will use the following three libraries in the evaluations:
 
 Library installation is as simple as placing the specified folder under your Arduino libraries (in my case, the path is C:\Users\yangs\Documents\Arduino\libraries). Then restart the IDE and include the needed .h files.
 
-## Part 1: Benchmark Evaluation
-Performance of single cryptographic operations in the protocols including encryption, decryption, hash, and Lagrange polynomial recovery are evaluated in this part. <strong>The experiment is conducted on one [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board.</strong> 
-- AES encrytion/decryption and BLAKE2 hash calculation can be evaluated with the examples provided by [Arduino Cryptography Library](https://github.com/rweather/arduinolibs/tree/master/libraries/Crypto), which are replicated in this repository. Simply run Benchmark/TestAESSmall/<strong>TestAESSmall.ino</strong>, Benchmark/TestAESTiny/<strong>TestAESTiny.ino</strong> and Benchmark/TestBLAKE2s/<strong>TestBLAKE2s.ino</strong> to see the result. 
-- For evaluating the polynomial recovery mechanism used in SSKT (Eq. (1) in the paper), run Benchmark/testPolynomial/<strong>testPolynomial.ino</strong> to see the result.
 
-Moreover, the Benchmark/ExtrapolationAnalyses folder contains python programs for extrapolating the total communication and computation costs of the protocols. Python packages <em>numpy</em> and <em>matplotlib</em> are needed.
-
-## Part 2: Prototype Implementation and Evaluation
+## Part 1: Prototype Implementation and Evaluation
 
 This part contains the implemention details of SKDC and SSKT protocols and evaluation with CAN bus. 
 
@@ -59,3 +53,10 @@ Try different <em>N</em> (from {2,3,4,5,6}, the number of simulated normal ECUs)
 Experiment on the SSKT protype
 - Following the same procedure but with the SSKT files.
 - Additionally, make sure the N value is also the same across all uploaded key_server_sskt and nodes_sskt programs.
+
+## Part 2: Benchmark Evaluation and Extrapolation Analyses
+Performance of single cryptographic operations in the protocols including encryption, decryption, hash, and Lagrange polynomial recovery are evaluated in this part. <strong>The experiment is conducted on one [Arduino Uno R3](https://store.arduino.cc/usa/arduino-uno-rev3) board.</strong> 
+- AES encrytion/decryption and BLAKE2 hash calculation can be evaluated with the examples provided by [Arduino Cryptography Library](https://github.com/rweather/arduinolibs/tree/master/libraries/Crypto), which are replicated in this repository. Simply run Benchmark/TestAESSmall/<strong>TestAESSmall.ino</strong>, Benchmark/TestAESTiny/<strong>TestAESTiny.ino</strong> and Benchmark/TestBLAKE2s/<strong>TestBLAKE2s.ino</strong> to see the result. 
+- For evaluating the polynomial recovery mechanism used in SSKT (Eq. (1) in the paper), run Benchmark/testPolynomial/<strong>testPolynomial.ino</strong> to see the result.
+
+The Benchmark/ExtrapolationAnalyses folder contains python programs for extrapolating the total communication and computation costs of the protocols. Python packages <em>numpy</em> and <em>matplotlib</em> are needed.
