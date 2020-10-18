@@ -30,16 +30,15 @@ for i in range(len(N)):
 	for j in range(len(M)):
 		m = M[j]
 
-		SKDC_Total[i,j] += (AES_SMALL_DE*16 + AES_SMALL_SETKEY) * m  # AES-decryption in m KD_MSGs
-		SKDC_Total[i,j] += (BLAKE2s*(16+4+8+16) + BLAKE2s_SETKEY + BLAKE2s_FIN) * m  # MAC in m KD_MSGs
-		SKDC_Total[i,j] += BLAKE2s*(16+4+8+16*m) + BLAKE2s_SETKEY + BLAKE2s_FIN  # MAC in 1 CO_MSG MAC (session keys digested)
+		SKDC_Total[i,j] += (AES_SMALL_SETKEY + AES_SMALL_DE*16) * m  # AES-decryption in m KD_MSGs
+		SKDC_Total[i,j] += (BLAKE2s_SETKEY + BLAKE2s*(4+8+16) + BLAKE2s_FIN) * m  # MAC in m KD_MSGs
+		SKDC_Total[i,j] += BLAKE2s_SETKEY + BLAKE2s*(4+8+16*m) + BLAKE2s_FIN  # MAC in 1 CO_MSG MAC (session keys digested)
 		
-		SSKT_Total[i,j] += BLAKE2s*(16+4+8+16) + BLAKE2s_SETKEY + BLAKE2s_FIN  # MAC in 1 PR_MSG MAC
-		# SSKT_Total[i,j] += (BLAKE2s*(16+16+4) + BLAKE2s_FIN) * m  # Compute m Rs
-		SSKT_Total[i,j] += (AES_TINY128_EN*16 + AES_TINY128_SETKEY) * m  # Compute m Rs
-		SSKT_Total[i,j] += (BLAKE2s*(16+4+8) + BLAKE2s_SETKEY + BLAKE2s_FIN) * m  # MAC in m KD_MSGs
-		SSKT_Total[i,j] += BLAKE2s*(16+4+8+16*m) + BLAKE2s_SETKEY + BLAKE2s_FIN  # MAC in 1 CO_MSG MAC (session keys digested)
-		SSKT_Total[i,j] += F[i]*16*m  # 16*m bytes of f(0) recovery
+		SSKT_Total[i,j] += BLAKE2s_SETKEY + BLAKE2s*(4+8+16) + BLAKE2s_FIN  # MAC in 1 PR_MSG MAC
+		SSKT_Total[i,j] += (AES_TINY128_SETKEY + AES_TINY128_EN*16) * m  # Compute m Rs
+		SSKT_Total[i,j] += (BLAKE2s_SETKEY + BLAKE2s*(4+8) + BLAKE2s_FIN) * m  # MAC in m KD_MSGs
+		SSKT_Total[i,j] += BLAKE2s_SETKEY + BLAKE2s*(4+8+16*m) + BLAKE2s_FIN  # MAC in 1 CO_MSG MAC (session keys digested)
+		SSKT_Total[i,j] += F[i]*16*m  # 16 bytes of f(0) recovery for m message IDs
 
 
 plt.plot(SKDC_Total[0],    color='red', linestyle='-')

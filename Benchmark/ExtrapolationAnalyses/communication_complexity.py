@@ -13,12 +13,12 @@ M = [5,10,15,20,25,30,35,40,45,50]  # Number of message IDs (we assume all ECUs 
 # Protocol message counts, as in Table 2. We assume CAN-FD frame is transmitted at 5 times of the CAN bit rate
 SKDC_KD    = 524
 SKDC_CO    = 222
-SKDC_KD_FD = 110
-SKDC_CO_FD = 64
-SSKT_RD    = 350
+SKDC_KD_FD = 105
+SKDC_CO_FD = 60
+SSKT_PR    = 444
 SSKT_CO    = 222
-SSKT_RD_FD = 90
-SSKT_CO_FD = 64
+SSKT_PR_FD = 86
+SSKT_CO_FD = 60
 
 # Init Stats
 SKDC_Total    = np.zeros((len(N),len(M)))
@@ -32,20 +32,20 @@ for i in range(len(N)):
 		m = M[j]
 		SKDC_Total[i,j]    = SKDC_KD    * n * m  +  SKDC_CO    * n
 		SKDC_Total_FD[i,j] = SKDC_KD_FD * n * m  +  SKDC_CO_FD * n
-		SSKT_Total[i,j]    = SSKT_RD * n  +  262 * (1 + n) * m  +  SSKT_CO  * n
+		SSKT_Total[i,j]    = SSKT_PR * n  +  262 * (1 + n) * m  +  SSKT_CO  * n
 
 
 		SSKT_KD_FD = 0
 		if n % 4 == 0:
-			SSKT_KD_FD = 84  + 161 * n     / 4
+			SSKT_KD_FD = 79  + 156 * n     / 4
 		elif n % 4 == 1:
-			SSKT_KD_FD = 109 + 161 * (n-1) / 4
+			SSKT_KD_FD = 105 + 156 * (n-1) / 4
 		elif n % 4 == 2:
-			SSKT_KD_FD = 136 + 161 * (n-2) / 4
+			SSKT_KD_FD = 131 + 156 * (n-2) / 4
 		else:
-			SSKT_KD_FD = 161 + 161 * (n-3) / 4
+			SSKT_KD_FD = 156 + 156 * (n-3) / 4
 
-		SSKT_Total_FD[i,j] =  SSKT_RD * n  +  SSKT_KD_FD * m + SSKT_CO_FD * n
+		SSKT_Total_FD[i,j] =  SSKT_PR_FD * n  +  SSKT_KD_FD * m + SSKT_CO_FD * n
 
 
 # Unit: ms, using CAN bit rate = 500kb/s
@@ -69,8 +69,9 @@ plt.legend([
 	'SSKT CAN, $N=5$', 'SSKT CAN, $N=10$',
 	'SSKT CAN-FD, $N=5$', 'SSKT CAN-FD, $N=10$'], fontsize='13')
 
-print('SKDC_Total_FD[1]:', SKDC_Total_FD[1])
-print('SSKT_Total_FD[1]:', SSKT_Total_FD[1])
+print('CAN-FD Stats with N='+str(N[1])+':')
+print('SKDC:', SKDC_Total_FD[1])
+print('SSKT:', SSKT_Total_FD[1])
 
 
 plt.xlabel('$M$ (Number of Message IDs)', fontsize='15')
